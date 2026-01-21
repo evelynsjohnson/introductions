@@ -125,7 +125,19 @@
   <footer style="text-align: center; padding: var(--spacing-xl) 0; color: #999;">
     <p data-lang-key="footer">&copy; 2025 LocEssentials. All rights reserved.</p>
   </footer>
+
+  <!-- Staff Login Button -->
+  <button id="staff-login-btn" class="staff-login-btn" onclick="staffLogin()" title="Staff Login">🔐</button>
+
   <script src="assets/js/page-translations.js"></script>  <script>
+    function staffLogin() {
+      const password = prompt('Enter staff password:');
+      if (password === 'rx2S#CTE') {
+        window.location.href = 'admin-export.html';
+      } else if (password !== null) {
+        alert('Incorrect password');
+      }
+    }
     let allStudents = [];
     let currentFilter = { course: 'all', section: 'all' };
 

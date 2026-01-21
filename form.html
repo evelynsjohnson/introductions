@@ -273,9 +273,21 @@
     <p>&copy; 2025 LocEssentials. All rights reserved.</p>
   </footer>
 
+  <!-- Staff Login Button (hidden when form is showing) -->
+  <button id="staff-login-btn" class="staff-login-btn" onclick="staffLogin()" title="Staff Login">🔐</button>
+
   <script src="assets/js/page-translations.js"></script>
   <script src="assets/js/form-translations.js"></script>
   <script>
+    function staffLogin() {
+      const password = prompt('Enter staff password:');
+      if (password === 'rx2S#CTE') {
+        window.location.href = 'admin-export.html';
+      } else if (password !== null) {
+        alert('Incorrect password');
+      }
+    }
+
     // Profile management state
     let profiles = {
       en: null,
@@ -385,6 +397,10 @@
       document.getElementById('form-container').style.display = 'none';
       currentFormLanguage = null;
       editingLanguage = null;
+      
+      // Show staff login button when not in form
+      document.getElementById('staff-login-btn').style.display = 'block';
+      
       updateProfileSelectionView();
     }
 
@@ -501,6 +517,9 @@
       
       document.getElementById('profile-selection-view').style.display = 'none';
       document.getElementById('form-container').style.display = 'block';
+      
+      // Hide staff login button when form is active
+      document.getElementById('staff-login-btn').style.display = 'none';
 
       // Apply page language translation
       updateLanguage(lang);
