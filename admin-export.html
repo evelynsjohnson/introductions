@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin - Export Profiles | LocEssentials</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/styles.css">
+  <style>
+    .admin-container {
+      max-width: 1000px;
+      margin: 2rem auto;
+      padding: 2rem;
+    }
+    .profile-list {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+      margin-top: 2rem;
+    }
+    .profile-item {
+      background: white;
+      border: 1px solid #e0e0e0;
+      border-radius: 8px;
+      padding: 1.5rem;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+    .profile-item h3 {
+      margin-bottom: 0.5rem;
+      color: #2b7bb9;
+    }
+    .profile-item p {
+      color: #666;
+      margin-bottom: 1rem;
+    }
+    .profile-actions {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+    .empty-state {
+      text-align: center;
+      padding: 3rem;
+      color: #999;
+    }
+    .export-all-section {
+      background: #f5f7f9;
+      padding: 1.5rem;
+      border-radius: 8px;
+      margin-bottom: 2rem;
+    }
+    .stats {
+      display: flex;
+      gap: 2rem;
+      margin-top: 1rem;
+      flex-wrap: wrap;
+    }
+    .stat-item {
+      background: white;
+      padding: 1rem 1.5rem;
+      border-radius: 6px;
+      border-left: 4px solid #2b7bb9;
+    }
+    .stat-item strong {
+      display: block;
+      font-size: 1.5rem;
+      color: #2b7bb9;
+    }
+    pre {
+      background: #f4f4f4;
+      padding: 1rem;
+      border-radius: 4px;
+      overflow-x: auto;
+      font-size: 0.85rem;
+      max-height: 300px;
+      overflow-y: auto;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="container">
+      <div class="header-content">
+        <a href="index.html">
+          <img src="assets/images/LocCapTransparentTilted.png" alt="LocEssentials Logo" class="logo">
+        </a>
+        <nav>
+          <ul>
+            <li><a href="index.html">Meet Our Team</a></li>
+            <li><a href="form.html">Submit Your Profile</a></li>
+            <li><a href="admin-export.html" style="color: #ef91c6; font-weight: 600;">Admin Export</a></li>
+          </ul>
+        </nav>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <div class="admin-container">
+      <h1>Admin - Export Submitted Profiles</h1>
+      <p style="color: #666; margin-bottom: 2rem;">
+        View and export all submitted student profiles. Each profile is stored in the browser's localStorage.
+      </p>
+
+      <!-- Export All Section -->
+      <div class="export-all-section">
+        <h2 style="margin-bottom: 1rem;">Export Options</h2>
+        <div class="profile-actions">
+          <button class="btn btn-primary" onclick="exportAllAsZip()">
+            Download All Profiles (Individual JSON Files)
+          </button>
+          <button class="btn btn-secondary" onclick="exportAllAsSingleJSON()">
+            Download All as Single JSON
+          </button>
+          <button class="btn btn-danger" onclick="clearAllProfiles()">
+            Clear All Submitted Profiles
+          </button>
+        </div>
+        
+        <div class="stats" id="stats">
+          <!-- Stats will be populated by JavaScript -->
+        </div>
+      </div>
+
+      <!-- Profile List -->
+      <h2>Submitted Profiles</h2>
+      <div class="profile-list" id="profile-list">
+        <!-- Profiles will be populated by JavaScript -->
+      </div>
+    </div>
+  </main>
+
+  <footer style="text-align: center; padding: 2rem 0; color: #999; margin-top: 3rem;">
+    <p>&copy; 2026 LocEssentials. All rights reserved.</p>
+  </footer>
+
+  <script>
+    // Load submitted profiles
+    function loadSubmittedProfiles() {
+      const submittedProfiles = JSON.parse(localStorage.getItem('submittedProfiles') || '[]');
+      return submittedProfiles;
+    }
+
+    // Display profiles
+    function displayProfiles() {
+      const profiles = loadSubmittedProfiles();
+      const container = document.getElementById('profile-list');
+      const statsContainer = document.getElementById('stats');
+      
+      // Update stats
+      statsContainer.innerHTML = `
+        <div class="stat-item">
+          <strong>${profiles.length}</strong>
+          <span>Total Submissions</span>
+        </div>
+        <div class="stat-item">
+          <strong>${profiles.filter(p => p.profiles.en).length}</strong>
+          <span>English Profiles</span>
+        </div>
+        <div class="stat-item">
+          <strong>${profiles.filter(p => p.profiles.es).length}</strong>
+          <span>Spanish Profiles</span>
+        </div>
+      `;
+      
+      if (profiles.length === 0) {
+        container.innerHTML = '<div class="empty-state"><p>No profiles have been submitted yet.</p></div>';
+        return;
+      }
+      
+      container.innerHTML = '';
+      profiles.forEach((profile, index) => {
+        const name = profile.profiles.en?.full_name || profile.profiles.es?.full_name || 'Unknown';
+        const date = new Date(profile.timestamp).toLocaleString();
+        const languages = [];
+        if (profile.profiles.en) languages.push('English');
+        if (profile.profiles.es) languages.push('Spanish');
+        
+        const div = document.createElement('div');
+        div.className = 'profile-item';
+        div.innerHTML = `
+          <h3>${name}</h3>
+          <p><strong>Submitted:</strong> ${date}</p>
+          <p><strong>Languages:</strong> ${languages.join(', ')}</p>
+          <div class="profile-actions">
+            <button class="btn btn-secondary btn-small" onclick="viewProfile(${index})">View JSON</button>
+            <button class="btn btn-primary btn-small" onclick="downloadProfile(${index})">Download JSON</button>
+            <button class="btn btn-danger btn-small" onclick="deleteProfile(${index})">Delete</button>
+          </div>
+        `;
+        container.appendChild(div);
+      });
+    }
+
+    // View profile JSON
+    window.viewProfile = function(index) {
+      const profiles = loadSubmittedProfiles();
+      const profile = profiles[index];
+      const jsonString = JSON.stringify(profile, null, 2);
+      
+      const modal = document.createElement('div');
+      modal.style.cssText = 'position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); display: flex; align-items: center; justify-content: center; z-index: 1000; padding: 2rem;';
+      modal.innerHTML = `
+        <div style="background: white; padding: 2rem; border-radius: 8px; max-width: 800px; max-height: 80vh; overflow: auto;">
+          <h3 style="margin-bottom: 1rem;">Profile JSON</h3>
+          <pre>${jsonString}</pre>
+          <button class="btn btn-primary" onclick="this.closest('div').parentElement.remove()">Close</button>
+        </div>
+      `;
+      document.body.appendChild(modal);
+      modal.onclick = (e) => { if (e.target === modal) modal.remove(); };
+    };
+
+    // Download single profile
+    window.downloadProfile = function(index) {
+      const profiles = loadSubmittedProfiles();
+      const profile = profiles[index];
+      const name = (profile.profiles.en?.full_name || profile.profiles.es?.full_name || 'profile').replace(/[^a-zA-Z0-9]/g, '_');
+      const timestamp = new Date(profile.timestamp).toISOString().replace(/[:.]/g, '-').split('T')[0];
+      const filename = `${name}_${timestamp}.json`;
+      
+      const jsonString = JSON.stringify(profile, null, 2);
+      const blob = new Blob([jsonString], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    };
+
+    // Delete profile
+    window.deleteProfile = function(index) {
+      if (!confirm('Are you sure you want to delete this profile?')) return;
+      
+      const profiles = loadSubmittedProfiles();
+      profiles.splice(index, 1);
+      localStorage.setItem('submittedProfiles', JSON.stringify(profiles));
+      displayProfiles();
+    };
+
+    // Export all as individual JSON files (creates multiple downloads)
+    window.exportAllAsZip = function() {
+      const profiles = loadSubmittedProfiles();
+      if (profiles.length === 0) {
+        alert('No profiles to export.');
+        return;
+      }
+      
+      alert(`This will download ${profiles.length} JSON files. Click OK to start downloads.`);
+      
+      profiles.forEach((profile, index) => {
+        setTimeout(() => {
+          const name = (profile.profiles.en?.full_name || profile.profiles.es?.full_name || `profile_${index}`).replace(/[^a-zA-Z0-9]/g, '_');
+          const timestamp = new Date(profile.timestamp).toISOString().replace(/[:.]/g, '-').split('T')[0];
+          const filename = `${name}_${timestamp}.json`;
+          
+          const jsonString = JSON.stringify(profile, null, 2);
+          const blob = new Blob([jsonString], { type: 'application/json' });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = filename;
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          URL.revokeObjectURL(url);
+        }, index * 500); // Stagger downloads to avoid browser blocking
+      });
+    };
+
+    // Export all as single JSON
+    window.exportAllAsSingleJSON = function() {
+      const profiles = loadSubmittedProfiles();
+      if (profiles.length === 0) {
+        alert('No profiles to export.');
+        return;
+      }
+      
+      const timestamp = new Date().toISOString().replace(/[:.]/g, '-').split('T')[0];
+      const filename = `all_profiles_${timestamp}.json`;
+      
+      const jsonString = JSON.stringify(profiles, null, 2);
+      const blob = new Blob([jsonString], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    };
+
+    // Clear all profiles
+    window.clearAllProfiles = function() {
+      if (!confirm('Are you sure you want to clear ALL submitted profiles? This cannot be undone!')) return;
+      
+      const confirmation = prompt('Type "DELETE ALL" to confirm:');
+      if (confirmation === 'DELETE ALL') {
+        localStorage.removeItem('submittedProfiles');
+        displayProfiles();
+        alert('All profiles have been cleared.');
+      }
+    };
+
+    // Initialize on page load
+    document.addEventListener('DOMContentLoaded', displayProfiles);
+  </script>
+</body>
+</html>

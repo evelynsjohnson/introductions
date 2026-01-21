@@ -4,12 +4,11 @@
       "id": "sample-001",
       "submission_date": "2025-01-13",
       "public_display_consent": true,
-      "language": "en",
-      "full_name": "Sample Student",
-      "preferred_name": "Sam",
-      "pronunciation_file": "/assets/audio/sample-student.mp3",
+      
+      "_comment": "Shared fields (language-independent)",
       "photo": "/assets/images/sample-student.jpg",
       "photo_alt": "Sample student photo",
+      "pronunciation_file": "/assets/audio/sample-student.mp3",
       "pronouns": "they/them",
       "languages_spoken": ["English", "Spanish"],
       "social_media": {
@@ -17,28 +16,57 @@
         "twitter": "",
         "website": ""
       },
-      "role": "Student",
-      "organization": "LocEssentials",
-      "about": "This is a sample student profile to demonstrate the structure.",
-      "previous_experience": "New to localization",
-      "course": "Loc101: Introduction to Localization",
+      "course": "Loc101",
       "course_badge": "google-classroom",
       "section": "2025-1",
-      "enrollment_reason": "To learn about localization",
-      "learning_goals": "Understand the basics of localization",
       "team": "",
+      
       "alter_ego": {
-        "name": "The Localizer",
         "photo": "/assets/images/sample-student-alter-ego.jpg",
         "photo_alt": "Sample alter ego photo",
-        "photo_credits": "Sample credits",
-        "job_title": "Global Communication Specialist",
-        "organization": "WorldBridge Solutions",
-        "about": "This is a sample alter ego profile.",
-        "subject_fields": "Technology, Education",
-        "hobbies": "Reading, Travel"
+        "photo_credits": "Sample credits"
       },
-      "anything_else": ""
+      
+      "_comment_multilingual": "Language-specific content in 'en' and 'es' objects",
+      "en": {
+        "full_name": "Sample Student",
+        "preferred_name": "Sam",
+        "role": "Student",
+        "organization": "LocEssentials",
+        "about": "This is a sample student profile to demonstrate the structure.",
+        "previous_experience": "New to localization",
+        "enrollment_reason": "To learn about localization",
+        "learning_goals": "Understand the basics of localization",
+        "alter_ego": {
+          "name": "The Localizer",
+          "job_title": "Global Communication Specialist",
+          "organization": "WorldBridge Solutions",
+          "about": "This is a sample alter ego profile.",
+          "subject_fields": "Technology, Education",
+          "hobbies": "Reading, Travel"
+        },
+        "anything_else": ""
+      },
+      
+      "es": {
+        "full_name": "Estudiante de Muestra",
+        "preferred_name": "Sam",
+        "role": "Estudiante",
+        "organization": "LocEssentials",
+        "about": "Este es un perfil de estudiante de muestra para demostrar la estructura.",
+        "previous_experience": "Nuevo en localización",
+        "enrollment_reason": "Para aprender sobre localización",
+        "learning_goals": "Entender los conceptos básicos de localización",
+        "alter_ego": {
+          "name": "El Localizador",
+          "job_title": "Especialista en Comunicación Global",
+          "organization": "Soluciones MundoPuente",
+          "about": "Este es un perfil de alter ego de muestra.",
+          "subject_fields": "Tecnología, Educación",
+          "hobbies": "Lectura, Viajes"
+        },
+        "anything_else": ""
+      }
     }
   ]
 }

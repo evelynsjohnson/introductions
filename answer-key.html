@@ -81,10 +81,10 @@
         </a>
         <nav>
           <ul>
-            <li><a href="index.html">Meet Our Team</a></li>
-            <li><a href="form.html">Submit Your Profile</a></li>
-            <li><a href="game.html">Play Guess Who</a></li>
-            <li><a href="answer-key.html">Answer Key</a></li>
+            <li><a href="index.html" data-lang-key="nav-home">Meet Our Team</a></li>
+            <li><a href="form.html" data-lang-key="nav-form">Submit Your Profile</a></li>
+            <li><a href="game.html" data-lang-key="nav-game">Play Guess Who</a></li>
+            <li><a href="answer-key.html" data-lang-key="nav-answer">Answer Key</a></li>
           </ul>
         </nav>
         <div class="language-toggle">
@@ -97,36 +97,35 @@
 
   <main>
     <div class="container">
-      <h1 class="text-center">Answer Key</h1>
-      <p class="text-center" style="max-width: 800px; margin: 0 auto var(--spacing-xl);">
+      <h1 class="text-center" data-lang-key="answer-title">Answer Key</h1>
+      <p class="text-center" style="max-width: 800px; margin: 0 auto var(--spacing-xl);" data-lang-key="answer-description">
         Here are all the matches between our real-life personas and their alter egos!
       </p>
 
       <!-- Filter Options -->
       <div style="text-align: center; margin-bottom: var(--spacing-xl);">
-        <label for="answer-course-filter" style="display: inline-block; margin-right: var(--spacing-sm); font-weight: 600;">Filter by Course:</label>
+        <label for="answer-course-filter" style="display: inline-block; margin-right: var(--spacing-sm); font-weight: 600;" data-lang-key="answer-filter-course">Filter by Course:</label>
         <select id="answer-course-filter" onchange="filterAnswers()" style="padding: var(--spacing-xs) var(--spacing-md); border-radius: var(--radius-md); border: 2px solid var(--light-blue);">
-          <option value="all">All Courses</option>
+          <option value="all" data-lang-key="answer-filter-all">All Courses</option>
         </select>
         
-        <label for="answer-section-filter" style="display: inline-block; margin-left: var(--spacing-lg); margin-right: var(--spacing-sm); font-weight: 600;">Section:</label>
+        <label for="answer-section-filter" style="display: inline-block; margin-left: var(--spacing-lg); margin-right: var(--spacing-sm); font-weight: 600;" data-lang-key="answer-filter-section">Section:</label>
         <select id="answer-section-filter" onchange="filterAnswers()" style="padding: var(--spacing-xs) var(--spacing-md); border-radius: var(--radius-md); border: 2px solid var(--light-blue);">
-          <option value="all">All Sections</option>
+          <option value="all" data-lang-key="answer-filter-all-sections">All Sections</option>
         </select>
       </div>
 
       <!-- Answers Container -->
       <div id="answers-container">
-        <div class="loading"><p>Loading answers...</p></div>
+        <div class="loading"><p data-lang-key="answer-loading">Loading answers...</p></div>
       </div>
     </div>
   </main>
 
   <footer style="text-align: center; padding: var(--spacing-xl) 0; color: #999;">
-    <p>&copy; 2025 LocEssentials. All rights reserved.</p>
+    <p data-lang-key="footer">&copy; 2025 LocEssentials. All rights reserved.</p>
   </footer>
-
-  <script>
+  <script src="assets/js/page-translations.js"></script>  <script>
     let allStudents = [];
     let currentFilter = { course: 'all', section: 'all' };
 
@@ -219,7 +218,78 @@
       `).join('');
     }
 
-    document.addEventListener('DOMContentLoaded', loadAnswers);
+    // Language switching
+    let currentLang = localStorage.getItem('preferredLanguage') || 'en';
+    
+    function switchLanguage(lang) {
+      currentLang = lang;
+      localStorage.setItem('preferredLanguage', lang);
+      
+      // Update button states
+      document.querySelectorAll('.lang-btn').forEach(btn => {
+        btn.classList.remove('active');
+      });
+      event.target.classList.add('active');
+      
+      // Update all translatable elements
+      document.querySelectorAll('[data-lang-key]').forEach(element => {
+        const key = element.getAttribute('data-lang-key');
+        if (pageTranslations[lang] && pageTranslations[lang][key]) {
+          element.textContent = pageTranslations[lang][key];
+        }
+      });
+      
+      // Update dropdown default options
+      const courseFilter = document.getElementById('answer-course-filter');
+      const sectionFilter = document.getElementById('answer-section-filter');
+      if (courseFilter && courseFilter.options[0]) {
+        courseFilter.options[0].textContent = pageTranslations[lang]['answer-filter-all'] || 'All Courses';
+      }
+      if (sectionFilter && sectionFilter.options[0]) {
+        sectionFilter.options[0].textContent = pageTranslations[lang]['answer-filter-all-sections'] || 'All Sections';
+      }
+      
+      // Update HTML lang attribute
+      document.documentElement.lang = lang;
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      loadAnswers();
+      
+      // Apply saved language
+      if (currentLang !== 'en') {
+        // Update button states
+        document.querySelectorAll('.lang-btn').forEach(btn => {
+          btn.classList.remove('active');
+          if (btn.textContent === (currentLang === 'es' ? 'Español' : 'English')) {
+            btn.classList.add('active');
+          }
+        });
+        
+        // Update all translatable elements
+        document.querySelectorAll('[data-lang-key]').forEach(element => {
+          const key = element.getAttribute('data-lang-key');
+          if (pageTranslations[currentLang] && pageTranslations[currentLang][key]) {
+            element.textContent = pageTranslations[currentLang][key];
+          }
+        });
+        
+        // Update dropdown default options after a short delay to ensure they're loaded
+        setTimeout(() => {
+          const courseFilter = document.getElementById('answer-course-filter');
+          const sectionFilter = document.getElementById('answer-section-filter');
+          if (courseFilter && courseFilter.options[0]) {
+            courseFilter.options[0].textContent = pageTranslations[currentLang]['answer-filter-all'] || 'All Courses';
+          }
+          if (sectionFilter && sectionFilter.options[0]) {
+            sectionFilter.options[0].textContent = pageTranslations[currentLang]['answer-filter-all-sections'] || 'All Sections';
+          }
+        }, 100);
+        
+        // Update HTML lang attribute
+        document.documentElement.lang = currentLang;
+      }
+    });
   </script>
 </body>
 </html>

@@ -1,0 +1,842 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Submit Your Profile | LocEssentials Introductions</title>
+  <meta name="description" content="Share your profile to join the LocEssentials community.">
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/styles.css">
+  <link rel="icon" type="image/x-icon" href="favicon.ico">
+</head>
+<body>
+  <header>
+    <div class="container">
+      <div class="header-content">
+        <a href="index.html">
+          <img src="assets/images/LocCapTransparentTilted.png" alt="LocEssentials Logo" class="logo">
+        </a>
+        <nav>
+          <ul>
+            <li><a href="index.html" data-lang-key="nav-home">Meet Our Team</a></li>
+            <li><a href="form.html" data-lang-key="nav-form">Submit Your Profile</a></li>
+            <li><a href="game.html" data-lang-key="nav-game">Play Guess Who</a></li>
+            <li><a href="answer-key.html" data-lang-key="nav-answer">Answer Key</a></li>
+          </ul>
+        </nav>
+        <div class="language-toggle">
+          <button class="lang-btn active" onclick="switchLanguage('en')">English</button>
+          <button class="lang-btn" onclick="switchLanguage('es')">Español</button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <div class="container">
+      <h1 class="text-center" data-lang-key="form-title">Submit Your Profile</h1>
+      <p class="text-center" style="max-width: 800px; margin: 0 auto var(--spacing-xl);" data-lang-key="form-description">
+        Share your real-life profile and create an alter ego to join our community! Your information will be used for our "Guess Who" game and team directory.
+      </p>
+
+      <!-- Profile Selection View (shown when no form is active) -->
+      <div id="profile-selection-view">
+        <!-- Profile Summary Cards -->
+        <div id="profile-cards-container" class="profile-cards">
+          <!-- Profile cards will be dynamically added here -->
+        </div>
+
+        <!-- Add Profile Buttons -->
+        <div id="add-profile-buttons" class="add-profile-section">
+          <button type="button" class="btn btn-primary btn-add-profile" id="add-english-profile" data-lang="en">
+            <span data-lang-key="add-english-profile">Add an English Profile</span>
+          </button>
+          <button type="button" class="btn btn-primary btn-add-profile" id="add-spanish-profile" data-lang="es">
+            <span data-lang-key="add-spanish-profile">Add a Spanish Profile</span>
+          </button>
+        </div>
+
+        <!-- Submit My Profile Button (initially disabled) -->
+        <div class="text-center" style="margin-top: var(--spacing-xl);">
+          <button type="button" class="btn btn-primary btn-large" id="submit-all-profiles" disabled>
+            <span data-lang-key="submit-my-profile">Submit My Profile</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Success Confirmation View (hidden initially) -->
+      <div id="success-view" style="display: none;">
+        <div class="success-message">
+          <div class="success-icon">✓</div>
+          <h2>
+            <span class="lang-en" data-lang-key="success-title">Profile Submitted Successfully!</span>
+            <span class="lang-es" data-lang-key="success-title-es" style="display: none;">¡Perfil enviado con éxito!</span>
+          </h2>
+          <p>
+            <span class="lang-en" data-lang-key="success-message">Your profile has been saved to the profiles folder.</span>
+            <span class="lang-es" data-lang-key="success-message-es" style="display: none;">Tu perfil ha sido guardado en la carpeta de perfiles.</span>
+          </p>
+          <div class="success-actions">
+            <button type="button" class="btn btn-primary" id="home-button">
+              <span class="lang-en" data-lang-key="home-button">Home</span>
+              <span class="lang-es" data-lang-key="home-button-es" style="display: none;">Inicio</span>
+            </button>
+            <button type="button" class="btn btn-secondary" id="submit-new-profile-button">
+              <span class="lang-en" data-lang-key="submit-new-profile">Submit a New Profile</span>
+              <span class="lang-es" data-lang-key="submit-new-profile-es" style="display: none;">Enviar un nuevo perfil</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Form Container (hidden initially) -->
+      <div id="form-container" style="display: none;">
+        <!-- Back/Cancel Button -->
+        <div class="form-header">
+          <button type="button" class="btn btn-secondary btn-back" id="back-button">
+            <span data-lang-key="back-button">← Back / Cancel</span>
+          </button>
+        </div>
+
+        <form id="profile-form" class="profile-form">
+        
+        <!-- Me in Real Life Section -->
+        <section class="form-section collapsible">
+          <h2 class="section-header">
+            <span class="collapse-icon">▼</span>
+            <span data-form-lang="en" data-display="inline">Me in Real Life</span>
+            <span data-form-lang="es" data-display="inline" style="display: none;">Yo en la vida real</span>
+          </h2>
+          <div class="section-content">
+
+          <div class="form-group lang-specific lang-en">
+            <label for="full-name-en">Full Name *</label>
+            <input type="text" id="full-name-en" name="full_name" required>
+          </div>
+
+          <div class="form-group lang-specific lang-es" style="display: none;">
+            <label for="full-name-es">Nombre completo *</label>
+            <input type="text" id="full-name-es" name="full_name" required>
+          </div>
+
+          <div class="form-group lang-specific lang-en">
+            <label for="preferred-name-en">Preferred Name *</label>
+            <input type="text" id="preferred-name-en" name="preferred_name" required>
+          </div>
+
+          <div class="form-group lang-specific lang-es" style="display: none;">
+            <label for="preferred-name-es">Me pueden llamar... *</label>
+            <input type="text" id="preferred-name-es" name="preferred_name" required>
+          </div>
+
+          <div class="form-group lang-specific lang-en">
+            <label for="photo-en">A Picture of Me *</label>
+            <input type="file" id="photo-en" name="photo" accept="image/*" required>
+          </div>
+
+          <div class="form-group lang-specific lang-es" style="display: none;">
+            <label for="photo-es">Una imagen de mí *</label>
+            <input type="file" id="photo-es" name="photo" accept="image/*" required>
+          </div>
+
+          <div class="form-group lang-specific lang-en">
+            <label for="photo-alt-en">Alt Text for Your Image *</label>
+            <input type="text" id="photo-alt-en" name="photo_alt" required>
+            <p class="form-note">Write a brief description for accessibility</p>
+          </div>
+
+          <div class="form-group lang-specific lang-es" style="display: none;">
+            <label for="photo-alt-es">Texto alternativo para tu imagen *</label>
+            <input type="text" id="photo-alt-es" name="photo_alt" required>
+            <p class="form-note">Escribe una breve descripción para accesibilidad</p>
+          </div>
+
+          <div class="form-group lang-specific lang-en">
+            <label for="pronunciation-en">How to Pronounce My Name (MP3 audio file)</label>
+            <input type="file" id="pronunciation-en" name="pronunciation_file" accept="audio/mp3">
+            <p class="form-note">Record yourself saying your name using Audacity and save as MP3</p>
+          </div>
+
+          <div class="form-group lang-specific lang-es" style="display: none;">
+            <label for="pronunciation-es">Cómo se pronuncia mi nombre (archivo de audio MP3)</label>
+            <input type="file" id="pronunciation-es" name="pronunciation_file" accept="audio/mp3">
+            <p class="form-note">Grábate diciendo tu nombre usando Audacity y guárdalo como MP3</p>
+          </div>
+
+          <div class="form-group lang-specific lang-en">
+            <label for="pronouns-en">My Preferred Pronouns</label>
+            <input type="text" id="pronouns-en" name="pronouns">
+          </div>
+
+          <div class="form-group lang-specific lang-es" style="display: none;">
+            <label for="pronouns-es">Mis pronombres preferidos</label>
+            <input type="text" id="pronouns-es" name="pronouns">
+          </div>
+
+          <div class="form-group lang-specific lang-en">
+            <label for="languages-en">The Languages I Speak *</label>
+            <input type="text" id="languages-en" name="languages" required>
+          </div>
+
+          <div class="form-group lang-specific lang-es" style="display: none;">
+            <label for="languages-es">Las lenguas que hablo son... *</label>
+            <input type="text" id="languages-es" name="languages" required>
+          </div>
+
+          <div class="form-group lang-specific lang-en">
+            <label for="social-media-en">Connect With Me (Social Media Links)</label>
+            <textarea id="social-media-en" name="social_media" placeholder="LinkedIn: https://linkedin.com/in/yourprofile&#10;Instagram: @yourusername"></textarea>
+          </div>
+
+          <div class="form-group lang-specific lang-es" style="display: none;">
+            <label for="social-media-es">Conéctense conmigo a través de estas redes sociales</label>
+            <textarea id="social-media-es" name="social_media" placeholder="LinkedIn: https://linkedin.com/in/tu-perfil&#10;Instagram: @tuusuario"></textarea>
+          </div>
+
+          <div class="form-group lang-specific lang-en">
+            <label for="role-en">My Role *</label>
+            <input type="text" id="role-en" name="role" required>
+          </div>
+
+          <div class="form-group lang-specific lang-es" style="display: none;">
+            <label for="role-es">Mi puesto de trabajo *</label>
+            <input type="text" id="role-es" name="role" required>
+          </div>
+
+          <div class="form-group lang-specific lang-en">
+            <label for="organization-en">The Organization Where I Work</label>
+            <input type="text" id="organization-en" name="organization">
+          </div>
+
+          <div class="form-group lang-specific lang-es" style="display: none;">
+            <label for="organization-es">La organización en que trabajo</label>
+            <input type="text" id="organization-es" name="organization">
+          </div>
+
+          <div class="form-group lang-specific lang-en">
+            <label for="about-en">About Me *</label>
+            <textarea id="about-en" name="about" required></textarea>
+          </div>
+
+          <div class="form-group lang-specific lang-es" style="display: none;">
+            <label for="about-es">Sobre mí puedo decir que… *</label>
+            <textarea id="about-es" name="about" required></textarea>
+          </div>
+
+          <div class="form-group lang-specific lang-en">
+            <label for="prev-exp-en">My Previous Experience in Translation and Localization</label>
+            <textarea id="prev-exp-en" name="previous_experience"></textarea>
+          </div>
+
+          <div class="form-group lang-specific lang-es" style="display: none;">
+            <label for="prev-exp-es">Mis experiencias previas en traducción y localización…</label>
+            <textarea id="prev-exp-es" name="previous_experience"></textarea>
+          </div>
+
+          <h3 class="subsection-header">
+            <span data-form-lang="en" data-display="inline">Course Information</span>
+            <span data-form-lang="es" data-display="inline" style="display: none;">Información del curso</span>
+          </h3>
+
+          <div class="form-group lang-specific lang-en">
+            <label for="course-en">The Course I'm Enrolled In *</label>
+            <select id="course-en" name="course" required>
+              <option value="">-- Select a course --</option>
+              <option value="Loc101">Loc101: Introduction to Localization</option>
+              <option value="Loc501">Loc501: Terminology for Beginners</option>
+            </select>
+          </div>
+
+          <div class="form-group lang-specific lang-es" style="display: none;">
+            <label for="course-es">El curso en que estoy inscrito *</label>
+            <select id="course-es" name="course" required>
+              <option value="">-- Selecciona un curso --</option>
+              <option value="Loc101-en">Loc101: Introduction to Localization</option>
+              <option value="Loc101-es">Loc101: Introducción a la localización</option>
+              <option value="Loc501">Loc501: Terminology for Beginners</option>
+            </select>
+          </div>
+
+          <div class="form-group lang-specific lang-en">
+            <label for="section-en">The Section of the Course *</label>
+            <input type="text" id="section-en" name="section" placeholder="e.g., 2024-1" required>
+          </div>
+
+          <div class="form-group lang-specific lang-es" style="display: none;">
+            <label for="section-es">La sección del curso en que estoy inscrito *</label>
+            <input type="text" id="section-es" name="section" placeholder="ej., 2024-1" required>
+          </div>
+
+          <div class="form-group lang-specific lang-en">
+            <label for="enrollment-en">I Enrolled in This Course Because...</label>
+            <textarea id="enrollment-en" name="enrollment_reason"></textarea>
+          </div>
+
+          <div class="form-group lang-specific lang-es" style="display: none;">
+            <label for="enrollment-es">Me inscribí en este curso porque…</label>
+            <textarea id="enrollment-es" name="enrollment_reason"></textarea>
+          </div>
+
+          <div class="form-group lang-specific lang-en">
+            <label for="goals-en">What I Want to Learn in This Course Is...</label>
+            <textarea id="goals-en" name="goals"></textarea>
+          </div>
+
+          <div class="form-group lang-specific lang-es" style="display: none;">
+            <label for="goals-es">Lo que quiero aprender de este curso...</label>
+            <textarea id="goals-es" name="goals"></textarea>
+          </div>
+
+          <div class="form-group lang-specific lang-en">
+            <label for="team-en">Team Assignment (Leave blank - instructor will assign)</label>
+            <input type="text" id="team-en" name="team" disabled>
+          </div>
+
+          <div class="form-group lang-specific lang-es" style="display: none;">
+            <label for="team-es">Asignación de equipo (Dejar en blanco - el instructor asignará)</label>
+            <input type="text" id="team-es" name="team" disabled>
+          </div>
+
+          </div>
+        </section>
+
+        <!-- My Alter Ego Section -->
+        <section class="form-section collapsible">
+          <h2 class="section-header">
+            <span class="collapse-icon">▼</span>
+            <span data-form-lang="en" data-display="inline">My alter ego</span>
+            <span data-form-lang="es" data-display="inline" style="display: none;">Mi alter ego</span>
+          </h2>
+          <div class="section-content">
+          <p class="form-description">
+            <span data-form-lang="en" data-display="inline">Think of your alter ego as a stage character or hidden identity. You could be a superhero, a super villain, or anyone in between!</span>
+            <span data-form-lang="es" data-display="inline" style="display: none;">Puedes pensar en tu alter ego como un personaje de escenario o una identidad oculta... como un superhéroe, un supervillano o cualquier figura intermedia.</span>
+          </p>
+          
+          <div class="form-group lang-specific lang-en">
+            <label for="alter-name-en">My Alter Ego's Name *</label>
+            <input type="text" id="alter-name-en" name="alter_ego_name" required>
+          </div>
+
+          <div class="form-group lang-specific lang-es" style="display: none;">
+            <label for="alter-name-es">Nombre de mi alter ego *</label>
+            <input type="text" id="alter-name-es" name="alter_ego_name" required>
+          </div>
+
+          <div class="form-group lang-specific lang-en">
+            <label for="alter-photo-en">A Picture of My Alter Ego *</label>
+            <input type="file" id="alter-photo-en" name="alter_ego_photo" accept="image/*" required>
+          </div>
+
+          <div class="form-group lang-specific lang-es" style="display: none;">
+            <label for="alter-photo-es">Imagen de mi alter ego *</label>
+            <input type="file" id="alter-photo-es" name="alter_ego_photo" accept="image/*" required>
+          </div>
+
+          <div class="form-group lang-specific lang-en">
+            <label for="alter-credits-en">Picture Credits *</label>
+            <input type="text" id="alter-credits-en" name="alter_ego_credits" required>
+            <p class="form-note">Provide information about where you got this image</p>
+          </div>
+
+          <div class="form-group lang-specific lang-es" style="display: none;">
+            <label for="alter-credits-es">Créditos de la imagen *</label>
+            <input type="text" id="alter-credits-es" name="alter_ego_credits" required>
+            <p class="form-note">Provee información sobre de dónde viene la imagen</p>
+          </div>
+
+          <div class="form-group lang-specific lang-en">
+            <label for="alter-alt-en">Alt Text for Your Alter Ego Picture *</label>
+            <input type="text" id="alter-alt-en" name="alter_ego_alt" required>
+          </div>
+
+          <div class="form-group lang-specific lang-es" style="display: none;">
+            <label for="alter-alt-es">Texto alternativo para la imagen de tu alter ego *</label>
+            <input type="text" id="alter-alt-es" name="alter_ego_alt" required>
+          </div>
+
+          <div class="form-group lang-specific lang-en">
+            <label for="alter-job-en">Job Title *</label>
+            <input type="text" id="alter-job-en" name="alter_ego_job" required>
+          </div>
+
+          <div class="form-group lang-specific lang-es" style="display: none;">
+            <label for="alter-job-es">Puesto de trabajo *</label>
+            <input type="text" id="alter-job-es" name="alter_ego_job" required>
+          </div>
+
+          <div class="form-group lang-specific lang-en">
+            <label for="alter-org-en">Organization</label>
+            <input type="text" id="alter-org-en" name="alter_ego_org">
+          </div>
+
+          <div class="form-group lang-specific lang-es" style="display: none;">
+            <label for="alter-org-es">Organización</label>
+            <input type="text" id="alter-org-es" name="alter_ego_org">
+          </div>
+
+          <div class="form-group lang-specific lang-en">
+            <label for="alter-about-en">About My Alter Ego *</label>
+            <textarea id="alter-about-en" name="alter_ego_about" required></textarea>
+          </div>
+
+          <div class="form-group lang-specific lang-es" style="display: none;">
+            <label for="alter-about-es">Sobre mi alter ego *</label>
+            <textarea id="alter-about-es" name="alter_ego_about" required></textarea>
+          </div>
+
+          <div class="form-group lang-specific lang-en">
+            <label for="subject-fields-en">The Subject Fields That Interest Me</label>
+            <input type="text" id="subject-fields-en" name="subject_fields">
+          </div>
+
+          <div class="form-group lang-specific lang-es" style="display: none;">
+            <label for="subject-fields-es">Dominios de interés laboral</label>
+            <input type="text" id="subject-fields-es" name="subject_fields">
+          </div>
+
+          <div class="form-group lang-specific lang-en">
+            <label for="hobbies-en">Interests and Hobbies Outside of Work</label>
+            <textarea id="hobbies-en" name="hobbies"></textarea>
+          </div>
+
+          <div class="form-group lang-specific lang-es" style="display: none;">
+            <label for="hobbies-es">Intereses y pasatiempos fuera del trabajo</label>
+            <textarea id="hobbies-es" name="hobbies"></textarea>
+          </div>
+
+          </div>
+        </section>
+
+        <!-- Privacy Agreement Section (at bottom of form before submit) -->
+        <section class="form-section privacy-agreement">
+          <div class="form-group">
+            <div class="checkbox-group">
+              <input type="checkbox" id="final-privacy-consent" name="final_privacy_consent" required>
+              <label for="final-privacy-consent">
+                <span data-lang-key="final-privacy-agreement-en" class="lang-en">
+                  I consent to having my profile displayed publicly on the LocEssentials website after course completion. During the course, all students will see each other regardless of this setting. *
+                </span>
+                <span data-lang-key="final-privacy-agreement-es" class="lang-es" style="display: none;">
+                  Consiento que mi perfil se muestre públicamente en el sitio web de LocEssentials después de completar el curso. Durante el curso, todos los estudiantes se verán entre sí independientemente de esta configuración. *
+                </span>
+              </label>
+            </div>
+          </div>
+        </section>
+
+        <!-- Submit Button -->
+        <div class="text-center">
+          <button type="submit" class="btn btn-primary btn-large" id="add-profile-submit">
+            <span data-form-lang="en" data-display="inline">Add English Profile</span>
+            <span data-form-lang="es" data-display="inline" style="display: none;">Agregar perfil en inglés</span>
+          </button>
+        </div>
+      </form>
+      </div>
+    </div>
+  </main>
+
+  <footer style="text-align: center; padding: var(--spacing-xl) 0; color: #999;">
+    <p>&copy; 2025 LocEssentials. All rights reserved.</p>
+  </footer>
+
+  <script src="assets/js/page-translations.js"></script>
+  <script src="assets/js/form-translations.js"></script>
+  <script>
+    // Profile management state
+    let profiles = {
+      en: null,
+      es: null
+    };
+    let currentFormLanguage = null;
+    let editingLanguage = null;
+    let currentLang = localStorage.getItem('preferredLanguage') || 'en';
+
+    // Load saved profiles from localStorage
+    function loadProfiles() {
+      const saved = localStorage.getItem('studentProfiles');
+      if (saved) {
+        profiles = JSON.parse(saved);
+      }
+    }
+
+    // Save profiles to localStorage
+    function saveProfiles() {
+      localStorage.setItem('studentProfiles', JSON.stringify(profiles));
+    }
+
+    // Switch page language
+    function switchLanguage(lang) {
+      currentLang = lang;
+      localStorage.setItem('preferredLanguage', lang);
+      
+      // Update button states
+      document.querySelectorAll('.lang-btn').forEach(btn => {
+        btn.classList.remove('active');
+      });
+      event.target.classList.add('active');
+      
+      updateLanguage(lang);
+      updateProfileSelectionView();
+      updateSuccessViewLanguage();
+    }
+
+    // Update all translatable elements
+    function updateLanguage(lang) {
+      const trans = {...(pageTranslations[lang] || {}), ...(translations[lang] || {})};
+      if (!trans) return;
+      
+      document.querySelectorAll('[data-lang-key]').forEach(element => {
+        const key = element.getAttribute('data-lang-key');
+        if (trans[key]) {
+          if (element.tagName === 'INPUT' && element.type === 'button') {
+            element.value = trans[key];
+          } else if (element.tagName === 'BUTTON' || element.tagName === 'SPAN') {
+            element.textContent = trans[key];
+          } else if (element.classList.contains('section-header')) {
+            const icon = element.querySelector('.collapse-icon');
+            if (icon) {
+              element.innerHTML = '';
+              element.appendChild(icon);
+              element.appendChild(document.createTextNode(' ' + trans[key]));
+            } else {
+              element.textContent = trans[key];
+            }
+          } else {
+            element.textContent = trans[key];
+          }
+        }
+      });
+
+      document.documentElement.lang = lang;
+    }
+
+    // Show profile selection view
+    function showProfileSelection() {
+      document.getElementById('profile-selection-view').style.display = 'block';
+      document.getElementById('form-container').style.display = 'none';
+      currentFormLanguage = null;
+      editingLanguage = null;
+      updateProfileSelectionView();
+    }
+
+    // Update profile selection view
+    function updateProfileSelectionView() {
+      const container = document.getElementById('profile-cards-container');
+      const addButtons = document.getElementById('add-profile-buttons');
+      const submitButton = document.getElementById('submit-all-profiles');
+      
+      // Clear existing cards
+      container.innerHTML = '';
+      
+      // Add profile cards for filled profiles
+      if (profiles.en) {
+        container.appendChild(createProfileCard('en', profiles.en));
+      }
+      if (profiles.es) {
+        container.appendChild(createProfileCard('es', profiles.es));
+      }
+      
+      // Update add buttons visibility
+      document.getElementById('add-english-profile').style.display = profiles.en ? 'none' : 'inline-block';
+      document.getElementById('add-spanish-profile').style.display = profiles.es ? 'none' : 'inline-block';
+      
+      // Enable/disable submit button
+      submitButton.disabled = !profiles.en && !profiles.es;
+      if (!submitButton.disabled) {
+        submitButton.classList.remove('btn-disabled');
+      } else {
+        submitButton.classList.add('btn-disabled');
+      }
+    }
+
+    // Create profile card
+    function createProfileCard(lang, data) {
+      const card = document.createElement('div');
+      card.className = 'profile-card';
+      
+      const langLabel = lang === 'en' ? 'English Profile' : 'Perfil en español';
+      const editLabel = currentLang === 'en' ? 'Edit' : 'Editar';
+      const viewLabel = currentLang === 'en' ? 'View' : 'Ver';
+      const deleteLabel = currentLang === 'en' ? 'Delete' : 'Eliminar';
+      
+      card.innerHTML = `
+        <div class="profile-card-header">
+          <h3>${langLabel}</h3>
+        </div>
+        <div class="profile-card-content">
+          <p><strong>${lang === 'en' ? 'Name:' : 'Nombre:'}</strong> ${data.full_name || 'N/A'}</p>
+          <p><strong>${lang === 'en' ? 'Preferred Name:' : 'Me llaman:'}</strong> ${data.preferred_name || 'N/A'}</p>
+        </div>
+        <div class="profile-card-footer">
+          <button class="btn btn-secondary btn-small" onclick="viewProfile('${lang}')">
+            ${viewLabel}
+          </button>
+          <button class="btn btn-secondary btn-small" onclick="editProfile('${lang}')">
+            ${editLabel}
+          </button>
+          <button class="btn btn-danger btn-small" onclick="deleteProfile('${lang}')">
+            ${deleteLabel}
+          </button>
+        </div>
+      `;
+      
+      return card;
+    }
+
+    // Show form for adding/editing profile
+    function showForm(lang, isEditing = false, isViewOnly = false) {
+      currentFormLanguage = lang;
+      editingLanguage = isEditing ? lang : null;
+      
+      document.getElementById('profile-selection-view').style.display = 'none';
+      document.getElementById('form-container').style.display = 'block';
+      
+      // Show/hide language-specific fields
+      document.querySelectorAll('.lang-specific').forEach(el => {
+        if (el.classList.contains(`lang-${lang}`)) {
+          el.style.display = 'block';
+        } else {
+          el.style.display = 'none';
+        }
+      });
+
+      // Enable only the visible language inputs
+      document.querySelectorAll('.lang-specific input, .lang-specific textarea, .lang-specific select').forEach(field => {
+        const group = field.closest('.lang-specific');
+        field.disabled = !group || !group.classList.contains(`lang-${lang}`);
+      });
+
+      // Toggle form-language text elements
+      document.querySelectorAll('[data-form-lang]').forEach(el => {
+        const isMatch = el.getAttribute('data-form-lang') === lang;
+        const display = el.getAttribute('data-display') || 'block';
+        el.style.display = isMatch ? display : 'none';
+      });
+      
+      // Update privacy agreement text
+      document.querySelectorAll('.privacy-agreement .lang-en, .privacy-agreement .lang-es').forEach(el => {
+        el.style.display = 'none';
+      });
+      const privacySpan = document.querySelector(`.privacy-agreement .lang-${lang}`);
+      if (privacySpan) {
+        privacySpan.style.display = 'inline';
+      }
+      
+      // Load existing data if editing or viewing
+      if ((isEditing || isViewOnly) && profiles[lang]) {
+        populateForm(profiles[lang]);
+      } else {
+        document.getElementById('profile-form').reset();
+      }
+
+      // Toggle submit button for view-only mode
+      const submitButton = document.getElementById('add-profile-submit');
+      if (submitButton) {
+        submitButton.style.display = isViewOnly ? 'none' : 'inline-flex';
+      }
+
+      // Disable all fields in view-only mode
+      document.querySelectorAll('#profile-form input, #profile-form textarea, #profile-form select').forEach(field => {
+        if (field.id === 'final-privacy-consent') return;
+        field.disabled = isViewOnly || field.disabled;
+      });
+      
+      // Scroll to top
+      window.scrollTo(0, 0);
+    }
+
+    // Populate form with data
+    function populateForm(data) {
+      Object.keys(data).forEach(key => {
+        const input = document.querySelector(`[name="${key}"]`);
+        if (input && input.type !== 'file') {
+          if (input.type === 'checkbox') {
+            input.checked = data[key];
+          } else {
+            input.value = data[key];
+          }
+        }
+      });
+    }
+
+    // Handle form submission
+    document.getElementById('profile-form').addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      const formData = new FormData(this);
+      const data = {};
+      
+      // Collect form data (excluding file inputs for now)
+      for (let [key, value] of formData.entries()) {
+        if (value instanceof File && value.size === 0) continue;
+        data[key] = value;
+      }
+      
+      // Save profile
+      profiles[currentFormLanguage] = data;
+      saveProfiles();
+      
+      // Show success message
+      const message = currentLang === 'en' 
+        ? `${currentFormLanguage === 'en' ? 'English' : 'Spanish'} profile saved!`
+        : `¡Perfil en ${currentFormLanguage === 'en' ? 'inglés' : 'español'} guardado!`;
+      alert(message);
+      
+      // Return to selection view
+      showProfileSelection();
+    });
+
+    // Back/Cancel button
+    document.getElementById('back-button').addEventListener('click', function() {
+        showProfileSelection();
+    });
+
+    // Add profile buttons
+    document.getElementById('add-english-profile').addEventListener('click', function() {
+      showForm('en', false);
+    });
+
+    document.getElementById('add-spanish-profile').addEventListener('click', function() {
+      showForm('es', false);
+    });
+
+    // Edit profile function
+    window.editProfile = function(lang) {
+      showForm(lang, true, false);
+    };
+
+    window.viewProfile = function(lang) {
+      showForm(lang, true, true);
+    };
+
+    // Delete profile function
+    window.deleteProfile = function(lang) {
+      const langName = lang === 'en' ? 'English' : 'Spanish';
+      const langNameEs = lang === 'en' ? 'inglés' : 'español';
+      const prompt1 = currentLang === 'en' 
+        ? `To delete your ${langName} profile, type "I Understand" below:`
+        : `Para eliminar tu perfil en ${langNameEs}, escribe "I Understand" a continuación:`;
+      
+      const confirmation = window.prompt(prompt1);
+      
+      if (confirmation === 'I Understand') {
+        profiles[lang] = null;
+        saveProfiles();
+        updateProfileSelectionView();
+        
+        const message = currentLang === 'en'
+          ? `${langName} profile deleted.`
+          : `Perfil en ${langNameEs} eliminado.`;
+        alert(message);
+      } else if (confirmation !== null) {
+        alert(currentLang === 'en' ? 'Deletion cancelled.' : 'Eliminación cancelada.');
+      }
+    };
+
+    // Submit all profiles
+    document.getElementById('submit-all-profiles').addEventListener('click', async function() {
+      if (!profiles.en && !profiles.es) return;
+      
+      try {
+        // Mark profiles as submitted with timestamp
+        const submittedData = {
+          timestamp: new Date().toISOString(),
+          submitted: true,
+          profiles: {
+            en: profiles.en || null,
+            es: profiles.es || null
+          }
+        };
+        
+        // Save to submitted profiles list in localStorage
+        const submittedProfiles = JSON.parse(localStorage.getItem('submittedProfiles') || '[]');
+        submittedProfiles.push(submittedData);
+        localStorage.setItem('submittedProfiles', JSON.stringify(submittedProfiles));
+        
+        // Clear current working profiles
+        profiles = { en: null, es: null };
+        saveProfiles();
+        
+        // Show success view
+        showSuccessView();
+        
+      } catch (error) {
+        console.error('Error submitting profiles:', error);
+        const message = currentLang === 'en'
+          ? 'An error occurred while submitting your profile. Please try again.'
+          : 'Ocurrió un error al enviar tu perfil. Por favor, inténtalo de nuevo.';
+        alert(message);
+      }
+    });
+
+    // Show success confirmation view
+    function showSuccessView() {
+      document.getElementById('profile-selection-view').style.display = 'none';
+      document.getElementById('form-container').style.display = 'none';
+      document.getElementById('success-view').style.display = 'block';
+      
+      // Update language display
+      updateSuccessViewLanguage();
+    }
+
+    // Update success view language
+    function updateSuccessViewLanguage() {
+      document.querySelectorAll('#success-view .lang-en, #success-view .lang-es').forEach(el => {
+        el.style.display = 'none';
+      });
+      document.querySelectorAll(`#success-view .lang-${currentLang}`).forEach(el => {
+        el.style.display = el.tagName === 'SPAN' ? 'inline' : 'block';
+      });
+    }
+
+    // Home button - go back to main page
+    document.getElementById('home-button').addEventListener('click', function() {
+      window.location.href = 'index.html';
+    });
+
+    // Submit new profile button - reload the form
+    document.getElementById('submit-new-profile-button').addEventListener('click', function() {
+      document.getElementById('success-view').style.display = 'none';
+      showProfileSelection();
+    });
+
+    // Collapsible sections functionality
+    function initCollapsibleSections() {
+      const sections = document.querySelectorAll('.form-section.collapsible');
+      
+      sections.forEach(section => {
+        const header = section.querySelector('.section-header');
+        
+        if (header) {
+          header.addEventListener('click', function(e) {
+            section.classList.toggle('collapsed');
+          });
+        }
+      });
+    }
+
+    // Initialize on page load
+    document.addEventListener('DOMContentLoaded', function() {
+      loadProfiles();
+      initCollapsibleSections();
+      
+      // Apply saved language preference
+      if (currentLang !== 'en') {
+        document.querySelectorAll('.lang-btn').forEach(btn => {
+          btn.classList.remove('active');
+          if (btn.textContent === (currentLang === 'es' ? 'Español' : 'English')) {
+            btn.classList.add('active');
+          }
+        });
+      }
+      updateLanguage(currentLang);
+      showProfileSelection();
+    });
+  </script>
+</body>
+</html>

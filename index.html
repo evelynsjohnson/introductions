@@ -26,10 +26,10 @@
         </a>
         <nav>
           <ul>
-            <li><a href="index.html">Meet Our Team</a></li>
-            <li><a href="form.html">Submit Your Profile</a></li>
-            <li><a href="game.html">Play Guess Who</a></li>
-            <li><a href="answer-key.html">Answer Key</a></li>
+            <li><a href="index.html" data-lang-key="nav-home">Meet Our Team</a></li>
+            <li><a href="form.html" data-lang-key="nav-form">Submit Your Profile</a></li>
+            <li><a href="game.html" data-lang-key="nav-game">Play Guess Who</a></li>
+            <li><a href="answer-key.html" data-lang-key="nav-answer-key">Answer Key</a></li>
           </ul>
         </nav>
         <div class="language-toggle">
@@ -42,54 +42,54 @@
 
   <main>
     <div class="container-wide">
-      <h1 class="text-center">Meet Our Team</h1>
-      <p class="text-center" style="max-width: 800px; margin: 0 auto var(--spacing-xl);">
+      <h1 class="text-center" data-lang-key="index-title">Meet Our Team</h1>
+      <p class="text-center" style="max-width: 800px; margin: 0 auto var(--spacing-xl);" data-lang-key="index-description">
         Discover the amazing people who have taken LocEssentials courses. Get to know their real-life personas and their creative alter egos!
       </p>
 
       <!-- Filters Section -->
       <section class="filters">
         <div class="filter-group">
-          <h3>Type of Introduction</h3>
+          <h3 data-lang-key="filter-intro-type">Type of Introduction</h3>
           <div class="filter-options">
             <div class="filter-tag active" data-filter="type" data-value="all" onclick="toggleViewType('all')">
-              <span>All Introductions</span>
+              <span data-lang-key="filter-all-intros">All Introductions</span>
               <span class="filter-count">0</span>
             </div>
             <div class="filter-tag" data-filter="type" data-value="real-life" onclick="toggleViewType('real-life')">
-              <span>Us in Real Life</span>
+              <span data-lang-key="filter-real-life">Us in Real Life</span>
               <span class="filter-count">0</span>
             </div>
             <div class="filter-tag" data-filter="type" data-value="alter-ego" onclick="toggleViewType('alter-ego')">
-              <span>Our Alter Egos</span>
+              <span data-lang-key="filter-alter-egos">Our Alter Egos</span>
               <span class="filter-count">0</span>
             </div>
           </div>
         </div>
 
         <div class="filter-group">
-          <h3>Course</h3>
+          <h3 data-lang-key="filter-course">Course</h3>
           <div class="filter-options" id="course-filters">
             <!-- Dynamically populated -->
           </div>
         </div>
 
         <div class="filter-group">
-          <h3>Section</h3>
+          <h3 data-lang-key="filter-section">Section</h3>
           <div class="filter-options" id="section-filters">
             <!-- Dynamically populated -->
           </div>
         </div>
 
         <div class="filter-group hidden" id="team-filter-group">
-          <h3>Team</h3>
+          <h3 data-lang-key="filter-team">Team</h3>
           <div class="filter-options" id="team-filters">
             <!-- Dynamically populated if teams exist -->
           </div>
         </div>
 
         <div class="filter-group">
-          <h3>Language</h3>
+          <h3 data-lang-key="filter-language">Language</h3>
           <div class="filter-options">
             <div class="filter-tag" data-filter="language" data-value="en" onclick="toggleFilter('language', 'en')">
               <span>English</span>
@@ -103,37 +103,82 @@
         </div>
 
         <div style="text-align: right; margin-top: var(--spacing-md);">
-          <button class="btn btn-outline" onclick="clearFilters()">Clear All Filters</button>
+          <button class="btn btn-outline" onclick="clearFilters()" data-lang-key="btn-clear-filters">Clear All Filters</button>
         </div>
       </section>
 
       <!-- Cards Grid -->
       <section class="cards-grid" id="cards-container">
         <div class="loading">
-          <p>Loading profiles...</p>
+          <p data-lang-key="loading">Loading profiles...</p>
         </div>
       </section>
     </div>
   </main>
 
   <footer style="text-align: center; padding: var(--spacing-xl) 0; color: #999;">
-    <p>&copy; 2025 LocEssentials. All rights reserved.</p>
+    <p data-lang-key="footer">&copy; 2025 LocEssentials. All rights reserved.</p>
   </footer>
 
+  <script src="assets/js/page-translations.js"></script>
   <script src="assets/js/main.js"></script>
   <script>
+    let currentLang = localStorage.getItem('preferredLanguage') || 'en';
+    
     function switchLanguage(lang) {
+      currentLang = lang;
+      localStorage.setItem('preferredLanguage', lang);
+      
       // Update button states
       document.querySelectorAll('.lang-btn').forEach(btn => {
         btn.classList.remove('active');
       });
       event.target.classList.add('active');
       
+      // Update all translatable elements
+      document.querySelectorAll('[data-lang-key]').forEach(element => {
+        const key = element.getAttribute('data-lang-key');
+        if (pageTranslations[lang] && pageTranslations[lang][key]) {
+          element.textContent = pageTranslations[lang][key];
+        }
+      });
+      
+      // Update HTML lang attribute
+      document.documentElement.lang = lang;
+      
       // For now, this updates the filter to show only selected language
       // In future, this could redirect to /en/ or /es/ subdirectories
       activeFilters.language = lang;
       renderCards();
     }
+    
+    // Apply saved language on page load
+    document.addEventListener('DOMContentLoaded', () => {
+      if (currentLang !== 'en') {
+        // Update button states
+        document.querySelectorAll('.lang-btn').forEach(btn => {
+          btn.classList.remove('active');
+          if (btn.textContent === (currentLang === 'es' ? 'Español' : 'English')) {
+            btn.classList.add('active');
+          }
+        });
+        
+        // Update all translatable elements
+        document.querySelectorAll('[data-lang-key]').forEach(element => {
+          const key = element.getAttribute('data-lang-key');
+          if (pageTranslations[currentLang] && pageTranslations[currentLang][key]) {
+            element.textContent = pageTranslations[currentLang][key];
+          }
+        });
+        
+        // Update HTML lang attribute
+        document.documentElement.lang = currentLang;
+        
+        // Update filter to match saved language
+        activeFilters.language = currentLang;
+        renderCards();
+      }
+    });
   </script>
 </body>
 </html>
