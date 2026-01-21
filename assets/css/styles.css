@@ -924,23 +924,27 @@ label:has(+ select[required])::after {
 
 /* Profile Cards Container */
 .profile-cards {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  display: flex;
+  flex-wrap: wrap;
   gap: var(--spacing-lg);
   margin-bottom: var(--spacing-xl);
+  align-items: stretch;
 }
 
 /* Individual Profile Card */
 .profile-card {
   background: white;
   border-radius: var(--radius-lg);
-  padding: var(--spacing-lg);
+  padding: 0;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   transition: all 0.3s ease;
   border: 2px solid var(--alabaster);
   display: flex;
   flex-direction: column;
   min-height: 280px;
+  width: 280px;
+  flex-shrink: 0;
+  overflow: hidden;
 }
 
 .profile-card:hover {
@@ -951,29 +955,97 @@ label:has(+ select[required])::after {
 /* Profile Card Header */
 .profile-card-header {
   display: flex;
-  justify-content: space-between;
+  flex-direction: column;
   align-items: center;
-  margin-bottom: var(--spacing-md);
-  padding-bottom: var(--spacing-sm);
-  border-bottom: 2px solid var(--alabaster);
+  padding: var(--spacing-md);
+  text-align: center;
 }
 
 .profile-card-header h3 {
   margin: 0;
   color: var(--dark-blue);
-  font-size: 1.25rem;
+  font-size: 1.1rem;
+  font-weight: 600;
 }
 
-/* Profile Card Actions */
+.profile-card-photo {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-bottom: var(--spacing-sm);
+  border: 3px solid var(--alabaster);
+}
+
+.profile-card-name {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--dark-blue);
+  margin-bottom: 0.25rem;
+}
+
+.profile-card-preferred {
+  font-size: 0.9rem;
+  color: #666;
+  margin-bottom: var(--spacing-sm);
+}
+
+/* Profile Card Content */
 .profile-card-content {
   flex: 1;
+  padding: 0 var(--spacing-md) var(--spacing-md);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.profile-card-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  justify-content: center;
+  margin-bottom: var(--spacing-sm);
+}
+
+.profile-badge {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.badge-course {
+  background-color: var(--light-blue);
+  color: white;
+}
+
+.badge-section {
+  background-color: var(--pink);
+  color: white;
+}
+
+.badge-language {
+  background-color: white;
+  color: var(--light-blue);
+  border: 2px solid var(--light-blue);
+}
+
+.profile-card-extra {
+  color: #666;
+  font-size: 0.9rem;
+  margin-bottom: var(--spacing-sm);
 }
 
 .profile-card-footer {
   display: flex;
   gap: var(--spacing-xs);
   justify-content: center;
-  margin-top: var(--spacing-md);
+  padding: var(--spacing-md);
+  border-top: 1px solid var(--alabaster);
+  background-color: #fafafa;
 }
 
 /* Profile Card Content */
@@ -989,34 +1061,49 @@ label:has(+ select[required])::after {
 
 /* Add Profile Section */
 .add-profile-section {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--spacing-md);
-  justify-content: center;
-  margin-bottom: var(--spacing-xl);
+  display: contents;
 }
 
 /* Add Profile Buttons */
 .btn-add-profile {
-  min-width: 240px;
-  min-height: 160px;
+  width: 250px;
+  min-height: 300px;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
   text-align: center;
   border-radius: var(--radius-lg);
   padding: var(--spacing-lg);
-  font-size: 1.05rem;
-  font-weight: 600;
-  box-shadow: 0 6px 16px rgba(28, 99, 153, 0.18);
-  border: 2px solid rgba(80, 165, 230, 0.35);
-  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+  font-size: 1rem;
+  font-weight: 500;
+  background: transparent;
+  border: 3px dotted var(--light-blue);
+  color: var(--medium-blue);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  flex-shrink: 0;
+  position: relative;
+}
+
+.btn-add-profile::before {
+  content: '+';
+  display: block;
+  font-size: 3rem;
+  font-weight: 300;
+  color: var(--light-blue);
+  margin-bottom: var(--spacing-sm);
+  line-height: 1;
 }
 
 .btn-add-profile:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 10px 20px rgba(28, 99, 153, 0.22);
-  border-color: var(--light-blue);
+  background: rgba(80, 165, 230, 0.05);
+  border-color: var(--medium-blue);
+  transform: scale(1.02);
+}
+
+.btn-add-profile:hover::before {
+  color: var(--medium-blue);
 }
 
 /* Small Button Variant */
@@ -1070,13 +1157,13 @@ label:has(+ select[required])::after {
 
 /* Privacy Agreement Section */
 .privacy-agreement {
-  background: linear-gradient(135deg, #fff7e0 0%, #f7fbff 100%);
+  background: #f5f5f5;
   padding: var(--spacing-lg);
   border-radius: var(--radius-lg);
-  border: 1px solid rgba(255, 188, 0, 0.35);
-  border-left: 6px solid var(--yellow-orange);
-  margin-top: var(--spacing-xl);
-  box-shadow: 0 6px 18px rgba(28, 99, 153, 0.08);
+  border: 1px solid #e0e0e0;
+  border-left: 6px solid var(--light-blue);
+  margin-top: var(--spacing-xl);  
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
 .privacy-agreement .form-group {
@@ -1147,26 +1234,19 @@ label:has(+ select[required])::after {
 /* Responsive adjustments */
 @media (max-width: 768px) {
   .profile-cards {
-    grid-template-columns: 1fr;
-  }
-  
-  .profile-card-header {
     flex-direction: column;
-    align-items: flex-start;
-    gap: var(--spacing-sm);
+    align-items: center;
   }
   
-  .profile-card-actions {
+  .profile-card {
     width: 100%;
-    justify-content: flex-end;
-  }
-  
-  .add-profile-section {
-    flex-direction: column;
+    max-width: 320px;
   }
   
   .btn-add-profile {
     width: 100%;
+    max-width: 320px;
+    min-height: 200px;
   }
   
   .success-actions {

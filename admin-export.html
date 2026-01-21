@@ -8,6 +8,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="assets/css/styles.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
   <style>
     .admin-container {
       max-width: 1000px;
@@ -108,8 +109,8 @@
       <div class="export-all-section">
         <h2 style="margin-bottom: 1rem;">Export Options</h2>
         <div class="profile-actions">
-          <button class="btn btn-primary" onclick="exportAllAsZip()">
-            Download All Profiles (Individual JSON Files)
+          <button class="btn btn-primary" onclick="exportCompleteZip()">
+            📦 Download Complete Export (ZIP with Images, Audio & JSON)
           </button>
           <button class="btn btn-secondary" onclick="exportAllAsSingleJSON()">
             Download All as Single JSON
@@ -117,6 +118,14 @@
           <button class="btn btn-danger" onclick="clearAllProfiles()">
             Clear All Submitted Profiles
           </button>
+        </div>
+        
+        <div id="export-progress" style="display: none; margin-top: 1rem; padding: 1rem; background: white; border-radius: 6px;">
+          <p style="margin: 0; color: #2b7bb9;"><strong>Preparing export...</strong></p>
+          <div style="width: 100%; height: 8px; background: #e0e0e0; border-radius: 4px; margin-top: 0.5rem; overflow: hidden;">
+            <div id="progress-bar" style="width: 0%; height: 100%; background: #2b7bb9; transition: width 0.3s;"></div>
+          </div>
+          <p id="progress-text" style="margin-top: 0.5rem; font-size: 0.9rem; color: #666;">Starting...</p>
         </div>
         
         <div class="stats" id="stats">
@@ -245,32 +254,158 @@
 
     // Export all as individual JSON files (creates multiple downloads)
     window.exportAllAsZip = function() {
+      // Deprecated - use exportCompleteZip instead
+      alert('This feature has been replaced. Please use "Download Complete Export" button for a ZIP file with images, audio, and JSON.');
+    };
+
+    // Export complete ZIP with images, audio, and JSON
+    window.exportCompleteZip = async function() {
       const profiles = loadSubmittedProfiles();
       if (profiles.length === 0) {
         alert('No profiles to export.');
         return;
       }
+
+      const progressContainer = document.getElementById('export-progress');
+      const progressBar = document.getElementById('progress-bar');
+      const progressText = document.getElementById('progress-text');
       
-      alert(`This will download ${profiles.length} JSON files. Click OK to start downloads.`);
+      progressContainer.style.display = 'block';
       
-      profiles.forEach((profile, index) => {
-        setTimeout(() => {
+      try {
+        const zip = new JSZip();
+        const timestamp = new Date().toISOString().replace(/[:.]/g, '-').split('T')[0];
+        
+        // Track unique files to avoid duplicates
+        const addedFiles = new Set();
+        let filesProcessed = 0;
+        let totalFiles = profiles.length;
+        
+        // First pass: count total files (JSON + images + audio)
+        profiles.forEach(profile => {
+          if (profile.profiles.en?.photo) totalFiles++;
+          if (profile.profiles.en?.pronunciation_file) totalFiles++;
+          if (profile.profiles.en?.alter_ego?.photo) totalFiles++;
+          if (profile.profiles.es?.photo) totalFiles++;
+          if (profile.profiles.es?.pronunciation_file) totalFiles++;
+          if (profile.profiles.es?.alter_ego?.photo) totalFiles++;
+        });
+        
+        // Add all JSON files
+        progressText.textContent = 'Adding JSON files...';
+        const jsonFolder = zip.folder('profiles');
+        profiles.forEach((profile, index) => {
           const name = (profile.profiles.en?.full_name || profile.profiles.es?.full_name || `profile_${index}`).replace(/[^a-zA-Z0-9]/g, '_');
-          const timestamp = new Date(profile.timestamp).toISOString().replace(/[:.]/g, '-').split('T')[0];
-          const filename = `${name}_${timestamp}.json`;
+          const profileTimestamp = new Date(profile.timestamp).toISOString().replace(/[:.]/g, '-').split('T')[0];
+          const filename = `${name}_${profileTimestamp}.json`;
+          jsonFolder.file(filename, JSON.stringify(profile, null, 2));
+          filesProcessed++;
+          progressBar.style.width = `${(filesProcessed / totalFiles) * 100}%`;
+        });
+        
+        // Helper function to fetch and add file to zip
+        async function addFileToZip(url, folderName) {
+          if (!url || addedFiles.has(url)) return;
           
-          const jsonString = JSON.stringify(profile, null, 2);
-          const blob = new Blob([jsonString], { type: 'application/json' });
-          const url = URL.createObjectURL(blob);
-          const a = document.createElement('a');
-          a.href = url;
-          a.download = filename;
-          document.body.appendChild(a);
-          a.click();
-          document.body.removeChild(a);
-          URL.revokeObjectURL(url);
-        }, index * 500); // Stagger downloads to avoid browser blocking
-      });
+          try {
+            // Remove leading slash and get the file path
+            const filePath = url.startsWith('/') ? url.substring(1) : url;
+            const fileName = filePath.split('/').pop();
+            
+            const response = await fetch(url);
+            if (response.ok) {
+              const blob = await response.blob();
+              const folder = zip.folder(folderName);
+              folder.file(fileName, blob);
+              addedFiles.add(url);
+              filesProcessed++;
+              progressBar.style.width = `${(filesProcessed / totalFiles) * 100}%`;
+            }
+          } catch (error) {
+            console.warn(`Failed to fetch ${url}:`, error);
+          }
+        }
+        
+        // Add all images and audio files
+        progressText.textContent = 'Adding images and audio files...';
+        for (const profile of profiles) {
+          // English profile files
+          if (profile.profiles.en) {
+            if (profile.profiles.en.photo) {
+              await addFileToZip(profile.profiles.en.photo, 'images');
+            }
+            if (profile.profiles.en.pronunciation_file) {
+              await addFileToZip(profile.profiles.en.pronunciation_file, 'audio');
+            }
+            if (profile.profiles.en.alter_ego?.photo) {
+              await addFileToZip(profile.profiles.en.alter_ego.photo, 'images');
+            }
+          }
+          
+          // Spanish profile files
+          if (profile.profiles.es) {
+            if (profile.profiles.es.photo) {
+              await addFileToZip(profile.profiles.es.photo, 'images');
+            }
+            if (profile.profiles.es.pronunciation_file) {
+              await addFileToZip(profile.profiles.es.pronunciation_file, 'audio');
+            }
+            if (profile.profiles.es.alter_ego?.photo) {
+              await addFileToZip(profile.profiles.es.alter_ego.photo, 'images');
+            }
+          }
+        }
+        
+        // Add a summary file
+        const summary = {
+          export_date: new Date().toISOString(),
+          total_profiles: profiles.length,
+          profiles_with_english: profiles.filter(p => p.profiles.en).length,
+          profiles_with_spanish: profiles.filter(p => p.profiles.es).length,
+          total_images: addedFiles.size,
+          files_included: {
+            json_files: profiles.length,
+            image_files: Array.from(addedFiles).filter(f => f.includes('images')).length,
+            audio_files: Array.from(addedFiles).filter(f => f.includes('audio')).length
+          }
+        };
+        zip.file('export_summary.json', JSON.stringify(summary, null, 2));
+        
+        // Generate and download ZIP
+        progressText.textContent = 'Creating ZIP file...';
+        const content = await zip.generateAsync({ 
+          type: 'blob',
+          compression: 'DEFLATE',
+          compressionOptions: { level: 9 }
+        }, (metadata) => {
+          progressBar.style.width = `${metadata.percent}%`;
+        });
+        
+        progressText.textContent = 'Download starting...';
+        const url = URL.createObjectURL(content);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `locessentials_export_${timestamp}.zip`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        
+        // Success message
+        progressText.textContent = `✓ Export complete! Downloaded ${profiles.length} profiles, ${Array.from(addedFiles).filter(f => f.includes('images')).length} images, and ${Array.from(addedFiles).filter(f => f.includes('audio')).length} audio files.`;
+        progressBar.style.width = '100%';
+        progressBar.style.background = '#28a745';
+        
+        setTimeout(() => {
+          progressContainer.style.display = 'none';
+          progressBar.style.background = '#2b7bb9';
+        }, 5000);
+        
+      } catch (error) {
+        console.error('Export error:', error);
+        progressText.textContent = '❌ Error creating export. Check console for details.';
+        progressBar.style.background = '#dc3545';
+      }
     };
 
     // Export all as single JSON

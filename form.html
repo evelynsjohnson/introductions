@@ -71,22 +71,14 @@
       <div id="success-view" style="display: none;">
         <div class="success-message">
           <div class="success-icon">✓</div>
-          <h2>
-            <span class="lang-en" data-lang-key="success-title">Profile Submitted Successfully!</span>
-            <span class="lang-es" data-lang-key="success-title-es" style="display: none;">¡Perfil enviado con éxito!</span>
-          </h2>
-          <p>
-            <span class="lang-en" data-lang-key="success-message">Your profile has been saved to the profiles folder.</span>
-            <span class="lang-es" data-lang-key="success-message-es" style="display: none;">Tu perfil ha sido guardado en la carpeta de perfiles.</span>
-          </p>
+          <h2 data-lang-key="success-title">Profile Submitted Successfully!</h2>
+          <p data-lang-key="success-message">Your profile has been saved and submitted.</p>
           <div class="success-actions">
             <button type="button" class="btn btn-primary" id="home-button">
-              <span class="lang-en" data-lang-key="home-button">Home</span>
-              <span class="lang-es" data-lang-key="home-button-es" style="display: none;">Inicio</span>
+              <span data-lang-key="btn-home">Home</span>
             </button>
             <button type="button" class="btn btn-secondary" id="submit-new-profile-button">
-              <span class="lang-en" data-lang-key="submit-new-profile">Submit a New Profile</span>
-              <span class="lang-es" data-lang-key="submit-new-profile-es" style="display: none;">Enviar un nuevo perfil</span>
+              <span data-lang-key="btn-submit-new">Submit a New Profile</span>
             </button>
           </div>
         </div>
@@ -107,197 +99,88 @@
         <section class="form-section collapsible">
           <h2 class="section-header">
             <span class="collapse-icon">▼</span>
-            <span data-form-lang="en" data-display="inline">Me in Real Life</span>
-            <span data-form-lang="es" data-display="inline" style="display: none;">Yo en la vida real</span>
+            <span data-i18n="section-real-life">Me in Real Life</span>
           </h2>
           <div class="section-content">
 
-          <div class="form-group lang-specific lang-en">
-            <label for="full-name-en">Full Name *</label>
-            <input type="text" id="full-name-en" name="full_name" required>
+          <div class="form-group">
+            <label for="full-name" data-i18n="label-full-name">Full Name</label>
+            <input type="text" id="full-name" name="full_name" required>
           </div>
 
-          <div class="form-group lang-specific lang-es" style="display: none;">
-            <label for="full-name-es">Nombre completo *</label>
-            <input type="text" id="full-name-es" name="full_name" required>
+          <div class="form-group">
+            <label for="preferred-name" data-i18n="label-preferred-name">Preferred Name</label>
+            <input type="text" id="preferred-name" name="preferred_name" required>
           </div>
 
-          <div class="form-group lang-specific lang-en">
-            <label for="preferred-name-en">Preferred Name *</label>
-            <input type="text" id="preferred-name-en" name="preferred_name" required>
+          <div class="form-group">
+            <label for="photo" data-i18n="label-photo">A Picture of Me</label>
+            <input type="file" id="photo" name="photo" accept="image/*" required>
           </div>
 
-          <div class="form-group lang-specific lang-es" style="display: none;">
-            <label for="preferred-name-es">Me pueden llamar... *</label>
-            <input type="text" id="preferred-name-es" name="preferred_name" required>
+          <div class="form-group">
+            <label for="photo-alt" data-i18n="label-photo-alt">Alt Text for Your Image</label>
+            <input type="text" id="photo-alt" name="photo_alt" required>
+            <p class="form-note" data-i18n-note="note-photo-alt">Write a brief description for accessibility</p>
           </div>
 
-          <div class="form-group lang-specific lang-en">
-            <label for="photo-en">A Picture of Me *</label>
-            <input type="file" id="photo-en" name="photo" accept="image/*" required>
+          <div class="form-group">
+            <label for="pronunciation" data-i18n="label-pronunciation">How to Pronounce My Name (MP3 audio file)</label>
+            <input type="file" id="pronunciation" name="pronunciation_file" accept="audio/mp3">
+            <p class="form-note" data-i18n-note="note-pronunciation">Record yourself saying your name using Audacity and save as MP3</p>
           </div>
 
-          <div class="form-group lang-specific lang-es" style="display: none;">
-            <label for="photo-es">Una imagen de mí *</label>
-            <input type="file" id="photo-es" name="photo" accept="image/*" required>
+          <div class="form-group">
+            <label for="pronouns" data-i18n="label-pronouns">My Preferred Pronouns</label>
+            <input type="text" id="pronouns" name="pronouns">
           </div>
 
-          <div class="form-group lang-specific lang-en">
-            <label for="photo-alt-en">Alt Text for Your Image *</label>
-            <input type="text" id="photo-alt-en" name="photo_alt" required>
-            <p class="form-note">Write a brief description for accessibility</p>
+          <div class="form-group">
+            <label for="languages" data-i18n="label-languages">The Languages I Speak</label>
+            <input type="text" id="languages" name="languages" required>
           </div>
 
-          <div class="form-group lang-specific lang-es" style="display: none;">
-            <label for="photo-alt-es">Texto alternativo para tu imagen *</label>
-            <input type="text" id="photo-alt-es" name="photo_alt" required>
-            <p class="form-note">Escribe una breve descripción para accesibilidad</p>
+          <div class="form-group">
+            <label for="social-media" data-i18n="label-social-media">Connect With Me (Social Media Links)</label>
+            <textarea id="social-media" name="social_media" data-i18n-placeholder="placeholder-social-media" placeholder="LinkedIn: https://linkedin.com/in/yourprofile&#10;Instagram: @yourusername"></textarea>
           </div>
 
-          <div class="form-group lang-specific lang-en">
-            <label for="pronunciation-en">How to Pronounce My Name (MP3 audio file)</label>
-            <input type="file" id="pronunciation-en" name="pronunciation_file" accept="audio/mp3">
-            <p class="form-note">Record yourself saying your name using Audacity and save as MP3</p>
+          <div class="form-group">
+            <label for="about" data-i18n="label-about">About Me</label>
+            <textarea id="about" name="about" required></textarea>
           </div>
 
-          <div class="form-group lang-specific lang-es" style="display: none;">
-            <label for="pronunciation-es">Cómo se pronuncia mi nombre (archivo de audio MP3)</label>
-            <input type="file" id="pronunciation-es" name="pronunciation_file" accept="audio/mp3">
-            <p class="form-note">Grábate diciendo tu nombre usando Audacity y guárdalo como MP3</p>
-          </div>
-
-          <div class="form-group lang-specific lang-en">
-            <label for="pronouns-en">My Preferred Pronouns</label>
-            <input type="text" id="pronouns-en" name="pronouns">
-          </div>
-
-          <div class="form-group lang-specific lang-es" style="display: none;">
-            <label for="pronouns-es">Mis pronombres preferidos</label>
-            <input type="text" id="pronouns-es" name="pronouns">
-          </div>
-
-          <div class="form-group lang-specific lang-en">
-            <label for="languages-en">The Languages I Speak *</label>
-            <input type="text" id="languages-en" name="languages" required>
-          </div>
-
-          <div class="form-group lang-specific lang-es" style="display: none;">
-            <label for="languages-es">Las lenguas que hablo son... *</label>
-            <input type="text" id="languages-es" name="languages" required>
-          </div>
-
-          <div class="form-group lang-specific lang-en">
-            <label for="social-media-en">Connect With Me (Social Media Links)</label>
-            <textarea id="social-media-en" name="social_media" placeholder="LinkedIn: https://linkedin.com/in/yourprofile&#10;Instagram: @yourusername"></textarea>
-          </div>
-
-          <div class="form-group lang-specific lang-es" style="display: none;">
-            <label for="social-media-es">Conéctense conmigo a través de estas redes sociales</label>
-            <textarea id="social-media-es" name="social_media" placeholder="LinkedIn: https://linkedin.com/in/tu-perfil&#10;Instagram: @tuusuario"></textarea>
-          </div>
-
-          <div class="form-group lang-specific lang-en">
-            <label for="role-en">My Role *</label>
-            <input type="text" id="role-en" name="role" required>
-          </div>
-
-          <div class="form-group lang-specific lang-es" style="display: none;">
-            <label for="role-es">Mi puesto de trabajo *</label>
-            <input type="text" id="role-es" name="role" required>
-          </div>
-
-          <div class="form-group lang-specific lang-en">
-            <label for="organization-en">The Organization Where I Work</label>
-            <input type="text" id="organization-en" name="organization">
-          </div>
-
-          <div class="form-group lang-specific lang-es" style="display: none;">
-            <label for="organization-es">La organización en que trabajo</label>
-            <input type="text" id="organization-es" name="organization">
-          </div>
-
-          <div class="form-group lang-specific lang-en">
-            <label for="about-en">About Me *</label>
-            <textarea id="about-en" name="about" required></textarea>
-          </div>
-
-          <div class="form-group lang-specific lang-es" style="display: none;">
-            <label for="about-es">Sobre mí puedo decir que… *</label>
-            <textarea id="about-es" name="about" required></textarea>
-          </div>
-
-          <div class="form-group lang-specific lang-en">
-            <label for="prev-exp-en">My Previous Experience in Translation and Localization</label>
-            <textarea id="prev-exp-en" name="previous_experience"></textarea>
-          </div>
-
-          <div class="form-group lang-specific lang-es" style="display: none;">
-            <label for="prev-exp-es">Mis experiencias previas en traducción y localización…</label>
-            <textarea id="prev-exp-es" name="previous_experience"></textarea>
+          <div class="form-group">
+            <label for="prev-exp" data-i18n="label-prev-exp">My Previous Experience in Translation and Localization</label>
+            <textarea id="prev-exp" name="previous_experience"></textarea>
           </div>
 
           <h3 class="subsection-header">
-            <span data-form-lang="en" data-display="inline">Course Information</span>
-            <span data-form-lang="es" data-display="inline" style="display: none;">Información del curso</span>
+            <span data-i18n="section-course">Course Information</span>
           </h3>
 
-          <div class="form-group lang-specific lang-en">
-            <label for="course-en">The Course I'm Enrolled In *</label>
-            <select id="course-en" name="course" required>
-              <option value="">-- Select a course --</option>
+          <div class="form-group">
+            <label for="course" data-i18n="label-course">The Course I'm Enrolled In</label>
+            <select id="course" name="course" required>
+              <option value="" data-i18n="option-select-course">-- Select a course --</option>
               <option value="Loc101">Loc101: Introduction to Localization</option>
               <option value="Loc501">Loc501: Terminology for Beginners</option>
             </select>
           </div>
 
-          <div class="form-group lang-specific lang-es" style="display: none;">
-            <label for="course-es">El curso en que estoy inscrito *</label>
-            <select id="course-es" name="course" required>
-              <option value="">-- Selecciona un curso --</option>
-              <option value="Loc101-en">Loc101: Introduction to Localization</option>
-              <option value="Loc101-es">Loc101: Introducción a la localización</option>
-              <option value="Loc501">Loc501: Terminology for Beginners</option>
-            </select>
+          <div class="form-group">
+            <label for="section" data-i18n="label-section">The rendition of the course I'm enrolled in</label>
+            <input type="text" id="section" name="section" data-i18n-placeholder="placeholder-section" placeholder="e.g., 2024-1" required>
           </div>
 
-          <div class="form-group lang-specific lang-en">
-            <label for="section-en">The Section of the Course *</label>
-            <input type="text" id="section-en" name="section" placeholder="e.g., 2024-1" required>
+          <div class="form-group">
+            <label for="enrollment" data-i18n="label-enrollment">I Enrolled in This Course Because...</label>
+            <textarea id="enrollment" name="enrollment_reason"></textarea>
           </div>
 
-          <div class="form-group lang-specific lang-es" style="display: none;">
-            <label for="section-es">La sección del curso en que estoy inscrito *</label>
-            <input type="text" id="section-es" name="section" placeholder="ej., 2024-1" required>
-          </div>
-
-          <div class="form-group lang-specific lang-en">
-            <label for="enrollment-en">I Enrolled in This Course Because...</label>
-            <textarea id="enrollment-en" name="enrollment_reason"></textarea>
-          </div>
-
-          <div class="form-group lang-specific lang-es" style="display: none;">
-            <label for="enrollment-es">Me inscribí en este curso porque…</label>
-            <textarea id="enrollment-es" name="enrollment_reason"></textarea>
-          </div>
-
-          <div class="form-group lang-specific lang-en">
-            <label for="goals-en">What I Want to Learn in This Course Is...</label>
-            <textarea id="goals-en" name="goals"></textarea>
-          </div>
-
-          <div class="form-group lang-specific lang-es" style="display: none;">
-            <label for="goals-es">Lo que quiero aprender de este curso...</label>
-            <textarea id="goals-es" name="goals"></textarea>
-          </div>
-
-          <div class="form-group lang-specific lang-en">
-            <label for="team-en">Team Assignment (Leave blank - instructor will assign)</label>
-            <input type="text" id="team-en" name="team" disabled>
-          </div>
-
-          <div class="form-group lang-specific lang-es" style="display: none;">
-            <label for="team-es">Asignación de equipo (Dejar en blanco - el instructor asignará)</label>
-            <input type="text" id="team-es" name="team" disabled>
+          <div class="form-group">
+            <label for="goals" data-i18n="label-goals">What I Want to Learn in This Course Is...</label>
+            <textarea id="goals" name="goals"></textarea>
           </div>
 
           </div>
@@ -307,105 +190,57 @@
         <section class="form-section collapsible">
           <h2 class="section-header">
             <span class="collapse-icon">▼</span>
-            <span data-form-lang="en" data-display="inline">My alter ego</span>
-            <span data-form-lang="es" data-display="inline" style="display: none;">Mi alter ego</span>
+            <span data-i18n="section-alter-ego">My Alter Ego</span>
           </h2>
           <div class="section-content">
-          <p class="form-description">
-            <span data-form-lang="en" data-display="inline">Think of your alter ego as a stage character or hidden identity. You could be a superhero, a super villain, or anyone in between!</span>
-            <span data-form-lang="es" data-display="inline" style="display: none;">Puedes pensar en tu alter ego como un personaje de escenario o una identidad oculta... como un superhéroe, un supervillano o cualquier figura intermedia.</span>
+          <p class="form-description" data-i18n="description-alter-ego">
+            Think of your alter ego as a stage character or hidden identity. You could be a superhero, a super villain, or anyone in between!
           </p>
           
-          <div class="form-group lang-specific lang-en">
-            <label for="alter-name-en">My Alter Ego's Name *</label>
-            <input type="text" id="alter-name-en" name="alter_ego_name" required>
+          <div class="form-group">
+            <label for="alter-name" data-i18n="label-alter-name">My Alter Ego's Name</label>
+            <input type="text" id="alter-name" name="alter_ego_name" required>
           </div>
 
-          <div class="form-group lang-specific lang-es" style="display: none;">
-            <label for="alter-name-es">Nombre de mi alter ego *</label>
-            <input type="text" id="alter-name-es" name="alter_ego_name" required>
+          <div class="form-group">
+            <label for="alter-photo" data-i18n="label-alter-photo">A Picture of My Alter Ego</label>
+            <input type="file" id="alter-photo" name="alter_ego_photo" accept="image/*" required>
           </div>
 
-          <div class="form-group lang-specific lang-en">
-            <label for="alter-photo-en">A Picture of My Alter Ego *</label>
-            <input type="file" id="alter-photo-en" name="alter_ego_photo" accept="image/*" required>
+          <div class="form-group">
+            <label for="alter-credits" data-i18n="label-alter-credits">Picture Credits</label>
+            <input type="text" id="alter-credits" name="alter_ego_credits" required>
+            <p class="form-note" data-i18n-note="note-alter-credits">Provide information about where you got this image</p>
           </div>
 
-          <div class="form-group lang-specific lang-es" style="display: none;">
-            <label for="alter-photo-es">Imagen de mi alter ego *</label>
-            <input type="file" id="alter-photo-es" name="alter_ego_photo" accept="image/*" required>
+          <div class="form-group">
+            <label for="alter-alt" data-i18n="label-alter-alt">Alt Text for Your Alter Ego Picture</label>
+            <input type="text" id="alter-alt" name="alter_ego_alt" required>
           </div>
 
-          <div class="form-group lang-specific lang-en">
-            <label for="alter-credits-en">Picture Credits *</label>
-            <input type="text" id="alter-credits-en" name="alter_ego_credits" required>
-            <p class="form-note">Provide information about where you got this image</p>
+          <div class="form-group">
+            <label for="alter-job" data-i18n="label-alter-job">Job Title</label>
+            <input type="text" id="alter-job" name="alter_ego_job" required>
           </div>
 
-          <div class="form-group lang-specific lang-es" style="display: none;">
-            <label for="alter-credits-es">Créditos de la imagen *</label>
-            <input type="text" id="alter-credits-es" name="alter_ego_credits" required>
-            <p class="form-note">Provee información sobre de dónde viene la imagen</p>
+          <div class="form-group">
+            <label for="alter-org" data-i18n="label-alter-org">Organization</label>
+            <input type="text" id="alter-org" name="alter_ego_org">
           </div>
 
-          <div class="form-group lang-specific lang-en">
-            <label for="alter-alt-en">Alt Text for Your Alter Ego Picture *</label>
-            <input type="text" id="alter-alt-en" name="alter_ego_alt" required>
+          <div class="form-group">
+            <label for="alter-about" data-i18n="label-alter-about">About My Alter Ego</label>
+            <textarea id="alter-about" name="alter_ego_about" required></textarea>
           </div>
 
-          <div class="form-group lang-specific lang-es" style="display: none;">
-            <label for="alter-alt-es">Texto alternativo para la imagen de tu alter ego *</label>
-            <input type="text" id="alter-alt-es" name="alter_ego_alt" required>
+          <div class="form-group">
+            <label for="subject-fields" data-i18n="label-subject-fields">The Subject Fields That Interest Me</label>
+            <input type="text" id="subject-fields" name="subject_fields">
           </div>
 
-          <div class="form-group lang-specific lang-en">
-            <label for="alter-job-en">Job Title *</label>
-            <input type="text" id="alter-job-en" name="alter_ego_job" required>
-          </div>
-
-          <div class="form-group lang-specific lang-es" style="display: none;">
-            <label for="alter-job-es">Puesto de trabajo *</label>
-            <input type="text" id="alter-job-es" name="alter_ego_job" required>
-          </div>
-
-          <div class="form-group lang-specific lang-en">
-            <label for="alter-org-en">Organization</label>
-            <input type="text" id="alter-org-en" name="alter_ego_org">
-          </div>
-
-          <div class="form-group lang-specific lang-es" style="display: none;">
-            <label for="alter-org-es">Organización</label>
-            <input type="text" id="alter-org-es" name="alter_ego_org">
-          </div>
-
-          <div class="form-group lang-specific lang-en">
-            <label for="alter-about-en">About My Alter Ego *</label>
-            <textarea id="alter-about-en" name="alter_ego_about" required></textarea>
-          </div>
-
-          <div class="form-group lang-specific lang-es" style="display: none;">
-            <label for="alter-about-es">Sobre mi alter ego *</label>
-            <textarea id="alter-about-es" name="alter_ego_about" required></textarea>
-          </div>
-
-          <div class="form-group lang-specific lang-en">
-            <label for="subject-fields-en">The Subject Fields That Interest Me</label>
-            <input type="text" id="subject-fields-en" name="subject_fields">
-          </div>
-
-          <div class="form-group lang-specific lang-es" style="display: none;">
-            <label for="subject-fields-es">Dominios de interés laboral</label>
-            <input type="text" id="subject-fields-es" name="subject_fields">
-          </div>
-
-          <div class="form-group lang-specific lang-en">
-            <label for="hobbies-en">Interests and Hobbies Outside of Work</label>
-            <textarea id="hobbies-en" name="hobbies"></textarea>
-          </div>
-
-          <div class="form-group lang-specific lang-es" style="display: none;">
-            <label for="hobbies-es">Intereses y pasatiempos fuera del trabajo</label>
-            <textarea id="hobbies-es" name="hobbies"></textarea>
+          <div class="form-group">
+            <label for="hobbies" data-i18n="label-hobbies">Interests and Hobbies Outside of Work</label>
+            <textarea id="hobbies" name="hobbies"></textarea>
           </div>
 
           </div>
@@ -416,13 +251,8 @@
           <div class="form-group">
             <div class="checkbox-group">
               <input type="checkbox" id="final-privacy-consent" name="final_privacy_consent" required>
-              <label for="final-privacy-consent">
-                <span data-lang-key="final-privacy-agreement-en" class="lang-en">
-                  I consent to having my profile displayed publicly on the LocEssentials website after course completion. During the course, all students will see each other regardless of this setting. *
-                </span>
-                <span data-lang-key="final-privacy-agreement-es" class="lang-es" style="display: none;">
-                  Consiento que mi perfil se muestre públicamente en el sitio web de LocEssentials después de completar el curso. Durante el curso, todos los estudiantes se verán entre sí independientemente de esta configuración. *
-                </span>
+              <label for="final-privacy-consent" data-i18n="privacy-agreement">
+                I consent to having my profile displayed publicly on the LocEssentials website after course completion. During the course, all students will see each other regardless of this setting.
               </label>
             </div>
           </div>
@@ -431,8 +261,7 @@
         <!-- Submit Button -->
         <div class="text-center">
           <button type="submit" class="btn btn-primary btn-large" id="add-profile-submit">
-            <span data-form-lang="en" data-display="inline">Add English Profile</span>
-            <span data-form-lang="es" data-display="inline" style="display: none;">Agregar perfil en inglés</span>
+            <span data-i18n="btn-add-profile-submit">Add Profile</span>
           </button>
         </div>
       </form>
@@ -478,7 +307,14 @@
       document.querySelectorAll('.lang-btn').forEach(btn => {
         btn.classList.remove('active');
       });
-      event.target.classList.add('active');
+      
+      // Find and activate the correct button
+      document.querySelectorAll('.lang-btn').forEach(btn => {
+        if ((lang === 'en' && btn.textContent.includes('English')) || 
+            (lang === 'es' && btn.textContent.includes('Español'))) {
+          btn.classList.add('active');
+        }
+      });
       
       updateLanguage(lang);
       updateProfileSelectionView();
@@ -487,9 +323,10 @@
 
     // Update all translatable elements
     function updateLanguage(lang) {
-      const trans = {...(pageTranslations[lang] || {}), ...(translations[lang] || {})};
+      const trans = {...(pageTranslations[lang] || {}), ...(formTranslations[lang] || {})};
       if (!trans) return;
       
+      // Update elements with data-lang-key attribute
       document.querySelectorAll('[data-lang-key]').forEach(element => {
         const key = element.getAttribute('data-lang-key');
         if (trans[key]) {
@@ -509,6 +346,33 @@
           } else {
             element.textContent = trans[key];
           }
+        }
+      });
+      
+      // Update form labels with data-i18n attribute (for form fields)
+      document.querySelectorAll('[data-i18n]').forEach(element => {
+        const key = element.getAttribute('data-i18n');
+        if (trans[key]) {
+          const text = trans[key];
+          // Check if field is required and add asterisk
+          const isRequired = element.closest('.form-group')?.querySelector('[required]');
+          element.textContent = isRequired ? `${text} *` : text;
+        }
+      });
+      
+      // Update placeholders
+      document.querySelectorAll('[data-i18n-placeholder]').forEach(element => {
+        const key = element.getAttribute('data-i18n-placeholder');
+        if (trans[key]) {
+          element.placeholder = trans[key];
+        }
+      });
+      
+      // Update form notes
+      document.querySelectorAll('[data-i18n-note]').forEach(element => {
+        const key = element.getAttribute('data-i18n-note');
+        if (trans[key]) {
+          element.textContent = trans[key];
         }
       });
 
@@ -533,7 +397,7 @@
       // Clear existing cards
       container.innerHTML = '';
       
-      // Add profile cards for filled profiles
+      // Add profile cards for filled profiles first
       if (profiles.en) {
         container.appendChild(createProfileCard('en', profiles.en));
       }
@@ -541,9 +405,39 @@
         container.appendChild(createProfileCard('es', profiles.es));
       }
       
-      // Update add buttons visibility
-      document.getElementById('add-english-profile').style.display = profiles.en ? 'none' : 'inline-block';
-      document.getElementById('add-spanish-profile').style.display = profiles.es ? 'none' : 'inline-block';
+      // Then add the "Add Profile" buttons after the profile cards
+      if (!profiles.en) {
+        const enButton = document.getElementById('add-english-profile').cloneNode(true);
+        enButton.style.display = 'flex';
+        enButton.onclick = function() {
+          currentLang = 'en';
+          localStorage.setItem('preferredLanguage', 'en');
+          document.querySelectorAll('.lang-btn').forEach(btn => {
+            btn.classList.remove('active');
+            if (btn.textContent.includes('English')) btn.classList.add('active');
+          });
+          showForm('en', false);
+        };
+        container.appendChild(enButton);
+      }
+      
+      if (!profiles.es) {
+        const esButton = document.getElementById('add-spanish-profile').cloneNode(true);
+        esButton.style.display = 'flex';
+        esButton.onclick = function() {
+          currentLang = 'es';
+          localStorage.setItem('preferredLanguage', 'es');
+          document.querySelectorAll('.lang-btn').forEach(btn => {
+            btn.classList.remove('active');
+            if (btn.textContent.includes('Español')) btn.classList.add('active');
+          });
+          showForm('es', false);
+        };
+        container.appendChild(esButton);
+      }
+      
+      // Hide the original add buttons container
+      addButtons.style.display = 'none';
       
       // Enable/disable submit button
       submitButton.disabled = !profiles.en && !profiles.es;
@@ -559,29 +453,41 @@
       const card = document.createElement('div');
       card.className = 'profile-card';
       
+      const trans = formTranslations[currentLang] || formTranslations.en;
       const langLabel = lang === 'en' ? 'English Profile' : 'Perfil en español';
-      const editLabel = currentLang === 'en' ? 'Edit' : 'Editar';
-      const viewLabel = currentLang === 'en' ? 'View' : 'Ver';
-      const deleteLabel = currentLang === 'en' ? 'Delete' : 'Eliminar';
+      const langBadgeText = lang === 'en' ? 'English' : 'Español';
+      const editLabel = trans['btn-edit'] || (currentLang === 'en' ? 'Edit' : 'Editar');
+      const viewLabel = trans['btn-view'] || (currentLang === 'en' ? 'View' : 'Ver');
+      const deleteLabel = trans['btn-delete'] || (currentLang === 'en' ? 'Delete' : 'Eliminar');
+      
+      // Get photo URL if file was uploaded
+      const photoURL = data.photo_url || 'assets/images/placeholder-avatar.svg';
+      const fullName = data.full_name || 'undefined';
+      const preferredName = data.preferred_name || 'undefined';
+      const course = data.course || 'undefined';
+      const section = data.section || 'undefined';
+      const pronouns = data.pronouns || 'undefined';
       
       card.innerHTML = `
         <div class="profile-card-header">
-          <h3>${langLabel}</h3>
+          <img src="${photoURL}" alt="${fullName}" class="profile-card-photo" onerror="this.src='assets/images/placeholder-avatar.svg'">
+          <div class="profile-card-name">${fullName}</div>
+          <div class="profile-card-preferred">${preferredName}</div>
         </div>
         <div class="profile-card-content">
-          <p><strong>${lang === 'en' ? 'Name:' : 'Nombre:'}</strong> ${data.full_name || 'N/A'}</p>
-          <p><strong>${lang === 'en' ? 'Preferred Name:' : 'Me llaman:'}</strong> ${data.preferred_name || 'N/A'}</p>
+          <div class="profile-card-badges">
+            <span class="profile-badge badge-course">${course}</span>
+            <span class="profile-badge badge-section">${section}</span>
+          </div>
+          <div class="profile-card-badges">
+            <span class="profile-badge badge-language">${langBadgeText}</span>
+          </div>
+          <div class="profile-card-extra">${pronouns}</div>
         </div>
         <div class="profile-card-footer">
-          <button class="btn btn-secondary btn-small" onclick="viewProfile('${lang}')">
-            ${viewLabel}
-          </button>
-          <button class="btn btn-secondary btn-small" onclick="editProfile('${lang}')">
-            ${editLabel}
-          </button>
-          <button class="btn btn-danger btn-small" onclick="deleteProfile('${lang}')">
-            ${deleteLabel}
-          </button>
+          <button class="btn btn-small btn-secondary" onclick="viewProfile('${lang}')">${viewLabel}</button>
+          <button class="btn btn-small btn-primary" onclick="editProfile('${lang}')">${editLabel}</button>
+          <button class="btn btn-small btn-danger" onclick="deleteProfile('${lang}')">${deleteLabel}</button>
         </div>
       `;
       
@@ -595,37 +501,12 @@
       
       document.getElementById('profile-selection-view').style.display = 'none';
       document.getElementById('form-container').style.display = 'block';
-      
-      // Show/hide language-specific fields
-      document.querySelectorAll('.lang-specific').forEach(el => {
-        if (el.classList.contains(`lang-${lang}`)) {
-          el.style.display = 'block';
-        } else {
-          el.style.display = 'none';
-        }
-      });
 
-      // Enable only the visible language inputs
-      document.querySelectorAll('.lang-specific input, .lang-specific textarea, .lang-specific select').forEach(field => {
-        const group = field.closest('.lang-specific');
-        field.disabled = !group || !group.classList.contains(`lang-${lang}`);
-      });
-
-      // Toggle form-language text elements
-      document.querySelectorAll('[data-form-lang]').forEach(el => {
-        const isMatch = el.getAttribute('data-form-lang') === lang;
-        const display = el.getAttribute('data-display') || 'block';
-        el.style.display = isMatch ? display : 'none';
-      });
+      // Apply page language translation
+      updateLanguage(lang);
       
-      // Update privacy agreement text
-      document.querySelectorAll('.privacy-agreement .lang-en, .privacy-agreement .lang-es').forEach(el => {
-        el.style.display = 'none';
-      });
-      const privacySpan = document.querySelector(`.privacy-agreement .lang-${lang}`);
-      if (privacySpan) {
-        privacySpan.style.display = 'inline';
-      }
+      // Apply form translations for the selected language
+      updateFormLanguage(lang);
       
       // Load existing data if editing or viewing
       if ((isEditing || isViewOnly) && profiles[lang]) {
@@ -643,11 +524,94 @@
       // Disable all fields in view-only mode
       document.querySelectorAll('#profile-form input, #profile-form textarea, #profile-form select').forEach(field => {
         if (field.id === 'final-privacy-consent') return;
-        field.disabled = isViewOnly || field.disabled;
+        const isTeamField = field.id === 'team';
+        field.disabled = isViewOnly || isTeamField;
       });
       
       // Scroll to top
       window.scrollTo(0, 0);
+    }
+    
+    // Update form language-specific content
+    function updateFormLanguage(lang) {
+      const trans = formTranslations[lang] || formTranslations.en;
+      
+      // Update all form labels with data-i18n attribute
+      document.querySelectorAll('label[data-i18n]').forEach(label => {
+        const key = label.getAttribute('data-i18n');
+        if (trans[key]) {
+          const group = label.closest('.form-group');
+          const isRequired = group?.querySelector('[required]');
+          label.textContent = isRequired ? `${trans[key]} *` : trans[key];
+        }
+      });
+      
+      // Update form notes
+      document.querySelectorAll('.form-note[data-i18n-note]').forEach(note => {
+        const key = note.getAttribute('data-i18n-note');
+        if (trans[key]) {
+          note.textContent = trans[key];
+        }
+      });
+      
+      // Update placeholders
+      document.querySelectorAll('[data-i18n-placeholder]').forEach(input => {
+        const key = input.getAttribute('data-i18n-placeholder');
+        if (trans[key]) {
+          input.placeholder = trans[key];
+        }
+      });
+      
+      // Update section headers
+      document.querySelectorAll('.section-header [data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        if (trans[key]) {
+          el.textContent = trans[key];
+        }
+      });
+      
+      // Update subsection headers
+      document.querySelectorAll('.subsection-header [data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        if (trans[key]) {
+          el.textContent = trans[key];
+        }
+      });
+      
+      // Update alter ego description
+      const alterDescription = document.querySelector('.form-description[data-i18n]');
+      if (alterDescription) {
+        const key = alterDescription.getAttribute('data-i18n');
+        if (trans[key]) {
+          alterDescription.textContent = trans[key];
+        }
+      }
+      
+      // Update privacy checkbox label
+      const privacyLabel = document.querySelector('#final-privacy-consent + label[data-i18n]');
+      if (privacyLabel) {
+        const key = privacyLabel.getAttribute('data-i18n');
+        if (trans[key]) {
+          privacyLabel.textContent = trans[key];
+        }
+      }
+      
+      // Update submit button text
+      const submitBtn = document.querySelector('#add-profile-submit [data-i18n]');
+      if (submitBtn) {
+        const key = submitBtn.getAttribute('data-i18n');
+        if (trans[key]) {
+          submitBtn.textContent = trans[key];
+        }
+      }
+      
+      // Update select options
+      document.querySelectorAll('option[data-i18n]').forEach(option => {
+        const key = option.getAttribute('data-i18n');
+        if (trans[key]) {
+          option.textContent = trans[key];
+        }
+      });
     }
 
     // Populate form with data
@@ -665,16 +629,24 @@
     }
 
     // Handle form submission
-    document.getElementById('profile-form').addEventListener('submit', function(e) {
+    document.getElementById('profile-form').addEventListener('submit', async function(e) {
       e.preventDefault();
       
       const formData = new FormData(this);
       const data = {};
       
-      // Collect form data (excluding file inputs for now)
+      // Collect form data
       for (let [key, value] of formData.entries()) {
-        if (value instanceof File && value.size === 0) continue;
-        data[key] = value;
+        if (value instanceof File && value.size > 0) {
+          // Convert file to data URL for storage
+          if (key === 'photo') {
+            data.photo_url = await fileToDataURL(value);
+          }
+          // Store filename for other files
+          data[key] = value.name;
+        } else if (!(value instanceof File)) {
+          data[key] = value;
+        }
       }
       
       // Save profile
@@ -691,6 +663,16 @@
       showProfileSelection();
     });
 
+    // Helper function to convert file to data URL
+    function fileToDataURL(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+    }
+
     // Back/Cancel button
     document.getElementById('back-button').addEventListener('click', function() {
         showProfileSelection();
@@ -698,10 +680,34 @@
 
     // Add profile buttons
     document.getElementById('add-english-profile').addEventListener('click', function() {
+      // Switch language without updating views (form will handle it)
+      currentLang = 'en';
+      localStorage.setItem('preferredLanguage', 'en');
+      
+      // Update button states
+      document.querySelectorAll('.lang-btn').forEach(btn => {
+        btn.classList.remove('active');
+        if (btn.textContent.includes('English')) {
+          btn.classList.add('active');
+        }
+      });
+      
       showForm('en', false);
     });
 
     document.getElementById('add-spanish-profile').addEventListener('click', function() {
+      // Switch language without updating views (form will handle it)
+      currentLang = 'es';
+      localStorage.setItem('preferredLanguage', 'es');
+      
+      // Update button states
+      document.querySelectorAll('.lang-btn').forEach(btn => {
+        btn.classList.remove('active');
+        if (btn.textContent.includes('Español')) {
+          btn.classList.add('active');
+        }
+      });
+      
       showForm('es', false);
     });
 
@@ -780,18 +786,8 @@
       document.getElementById('form-container').style.display = 'none';
       document.getElementById('success-view').style.display = 'block';
       
-      // Update language display
-      updateSuccessViewLanguage();
-    }
-
-    // Update success view language
-    function updateSuccessViewLanguage() {
-      document.querySelectorAll('#success-view .lang-en, #success-view .lang-es').forEach(el => {
-        el.style.display = 'none';
-      });
-      document.querySelectorAll(`#success-view .lang-${currentLang}`).forEach(el => {
-        el.style.display = el.tagName === 'SPAN' ? 'inline' : 'block';
-      });
+      // Apply current language translations
+      updateLanguage(currentLang);
     }
 
     // Home button - go back to main page

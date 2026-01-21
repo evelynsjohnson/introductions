@@ -7,7 +7,21 @@ const pageTranslations = {
     'nav-form': 'Submit Your Profile',
     'nav-game': 'Play Guess Who',
     'nav-answer-key': 'Answer Key',
+    'nav-answer': 'Answer Key',
     'footer': '© 2025 LocEssentials. All rights reserved.',
+    
+    // Form page (from form.json)
+    'form-title': 'Submit Your Profile',
+    'form-description': 'Share your real-life profile and create an alter ego to join our community! Your information will be used for our "Guess Who" game and team directory.',
+    'add-english-profile': 'Add an English Profile',
+    'add-spanish-profile': 'Add a Spanish Profile',
+    'submit-my-profile': 'Submit My Profile',
+    'back-button': '← Back / Cancel',
+    'success-title': 'Profile Submitted Successfully!',
+    'success-message': 'Your profile has been saved and submitted.',
+    'btn-home': 'Home',
+    'btn-submit-new': 'Submit a New Profile',
+    'btn-add-profile-submit': 'Add Profile',
     
     // Index page
     'index-title': 'Meet Our Team',
@@ -55,12 +69,25 @@ const pageTranslations = {
     'answer-loading': 'Loading answers...'
   },
   es: {
-    // Common
     'nav-home': 'Conoce a Nuestro Equipo',
     'nav-form': 'Envía Tu Perfil',
     'nav-game': 'Juega Adivina Quién',
     'nav-answer-key': 'Clave de Respuestas',
+    'nav-answer': 'Clave de Respuestas',
     'footer': '© 2025 LocEssentials. Todos los derechos reservados.',
+    
+    // Form page
+    'form-title': 'Envía tu perfil',
+    'form-description': '¡Comparte tu perfil de la vida real y crea un alter ego para unirte a nuestra comunidad! Tu información se utilizará para nuestro juego "Adivina quién" y el directorio del equipo.',
+    'add-english-profile': 'Agregar un perfil en inglés',
+    'add-spanish-profile': 'Agregar un perfil en español',
+    'submit-my-profile': 'Enviar mi perfil',
+    'back-button': '← Atrás / Cancelar',
+    'success-title': 'Perfil enviado correctamente',
+    'success-message': 'Su perfil se ha guardado y enviado.',
+    'btn-home': 'Inicio',
+    'btn-submit-new': 'Enviar un nuevo perfil',
+    'btn-add-profile-submit': 'Agregar perfil',
     
     // Index page
     'index-title': 'Conoce a Nuestro Equipo',
