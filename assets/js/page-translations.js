@@ -10,7 +10,7 @@ const pageTranslations = {
     'nav-answer': 'Answer Key',
     'footer': '© 2025 LocEssentials. All rights reserved.',
     
-    // Form page (from form.json)
+    // Form page
     'form-title': 'Submit Your Profile',
     'form-description': 'Share your real-life profile and create an alter ego to join our community! Your information will be used for our "Guess Who" game and team directory.',
     'add-english-profile': 'Add an English Profile',

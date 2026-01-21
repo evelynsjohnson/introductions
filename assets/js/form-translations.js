@@ -1,5 +1,3 @@
-// Form translations for English and Spanish
-// Spanish translations from form.json (primary source) and DeepL (for additional UI elements)
 
 const formTranslations = {
   en: {
@@ -47,7 +45,7 @@ const formTranslations = {
     // Privacy
     'privacy-agreement': 'I consent to having my profile displayed publicly on the LocEssentials website after course completion. During the course, all students will see each other regardless of this setting.',
     
-    // Buttons (not in form.json - DeepL translations)
+    // Buttons
     'btn-add-english': 'Add an English Profile',
     'btn-add-spanish': 'Add a Spanish Profile',
     'btn-back': '← Back / Cancel',
@@ -55,13 +53,13 @@ const formTranslations = {
     'btn-add-profile-es': 'Add Spanish Profile',
     'btn-submit-my-profile': 'Submit My Profile',
     
-    // Success View (not in form.json - DeepL translations)
+    // Success View
     'success-title': 'Profile Submitted Successfully!',
     'success-message': 'Your profile has been saved and submitted.',
     'btn-home': 'Home',
     'btn-submit-new': 'Submit a New Profile',
     
-    // Card Actions (not in form.json - DeepL translations)
+    // Card Actions
     'btn-view': 'View',
     'btn-edit': 'Edit',
     'btn-delete': 'Delete'
