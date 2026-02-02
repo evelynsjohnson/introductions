@@ -929,6 +929,7 @@ label:has(+ select[required])::after {
   gap: var(--spacing-lg);
   margin-bottom: var(--spacing-xl);
   align-items: stretch;
+  justify-content: center;
 }
 
 /* Individual Profile Card */

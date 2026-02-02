@@ -17,7 +17,7 @@ const formTranslations = {
     'label-pronouns': 'My Preferred Pronouns',
     'label-languages': 'The Languages I Speak',
     'label-social-media': 'Connect With Me (Social Media Links)',
-    'placeholder-social-media': 'LinkedIn: https://linkedin.com/in/yourprofile\nInstagram: @yourusername',
+    'placeholder-social-media': 'LinkedIn: https://linkedin.com/in/yourprofile',
     'label-about': 'About Me',
     'label-prev-exp': 'My Previous Experience in Translation and Localization',
     
@@ -82,7 +82,7 @@ const formTranslations = {
     'label-pronouns': 'Mis pronombres preferidos',
     'label-languages': 'Los idiomas que hablo',
     'label-social-media': 'Conéctate conmigo (enlaces a redes sociales)',
-    'placeholder-social-media': 'LinkedIn: https://linkedin.com/in/yourprofile\nInstagram: @tu_nombre_de_usuario',
+    'placeholder-social-media': 'LinkedIn: https://linkedin.com/in/yourprofile',
     'label-about': 'Acerca de mí',
     'label-prev-exp': 'Mi experiencia previa en traducción y localización',
     
