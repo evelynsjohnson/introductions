@@ -296,6 +296,12 @@
     let currentFormLanguage = null;
     let editingLanguage = null;
     let currentLang = localStorage.getItem('preferredLanguage') || 'en';
+    let autoPopulatedMedia = {
+      photo_url: null,
+      alter_ego_photo_url: null,
+      pronunciation_url: null,
+      pronunciation_file: null
+    };
 
     // Load saved profiles from localStorage
     function loadProfiles() {
@@ -532,6 +538,18 @@
         populateForm(profiles[lang]);
       } else {
         document.getElementById('profile-form').reset();
+        autoPopulatedMedia = {
+          photo_url: null,
+          alter_ego_photo_url: null,
+          pronunciation_url: null,
+          pronunciation_file: null
+        };
+        
+        // Auto-populate from other language if it exists
+        const otherLang = lang === 'en' ? 'es' : 'en';
+        if (profiles[otherLang]) {
+          autoPopulateFromOtherLanguage(profiles[otherLang]);
+        }
       }
 
       // Toggle submit button for view-only mode
@@ -549,6 +567,36 @@
       
       // Scroll to top
       window.scrollTo(0, 0);
+    }
+    
+    // Auto-populate fields from other language form
+    function autoPopulateFromOtherLanguage(otherLangData) {
+      // Fields to carry over (language-independent fields)
+      const fieldsToCarryOver = [
+        'full_name',
+        'preferred_name',
+        'languages',
+        'social_media',
+        'course',
+        'section',
+        'alter_ego_name',
+        'alter_ego_credits'
+      ];
+
+      fieldsToCarryOver.forEach(field => {
+        if (otherLangData[field]) {
+          const input = document.querySelector(`[name="${field}"]`);
+          if (input && input.type !== 'file') {
+            input.value = otherLangData[field];
+          }
+        }
+      });
+
+      // Carry over media URLs (cannot set file inputs directly)
+      autoPopulatedMedia.photo_url = otherLangData.photo_url || null;
+      autoPopulatedMedia.alter_ego_photo_url = otherLangData.alter_ego_photo_url || null;
+      autoPopulatedMedia.pronunciation_url = otherLangData.pronunciation_url || null;
+      autoPopulatedMedia.pronunciation_file = otherLangData.pronunciation_file || null;
     }
     
     // Update form language-specific content
@@ -657,15 +705,35 @@
       // Collect form data
       for (let [key, value] of formData.entries()) {
         if (value instanceof File && value.size > 0) {
-          // Convert file to data URL for storage
           if (key === 'photo') {
             data.photo_url = await fileToDataURL(value);
+            data.photo = value.name;
+          } else if (key === 'alter_ego_photo') {
+            data.alter_ego_photo_url = await fileToDataURL(value);
+            data.alter_ego_photo = value.name;
+          } else if (key === 'pronunciation_file') {
+            data.pronunciation_url = await fileToDataURL(value);
+            data.pronunciation_file = value.name;
+          } else {
+            data[key] = value.name;
           }
-          // Store filename for other files
-          data[key] = value.name;
         } else if (!(value instanceof File)) {
           data[key] = value;
         }
+      }
+
+      // Reuse auto-populated media when no new files were selected
+      if (!data.photo_url && autoPopulatedMedia.photo_url) {
+        data.photo_url = autoPopulatedMedia.photo_url;
+      }
+      if (!data.alter_ego_photo_url && autoPopulatedMedia.alter_ego_photo_url) {
+        data.alter_ego_photo_url = autoPopulatedMedia.alter_ego_photo_url;
+      }
+      if (!data.pronunciation_url && autoPopulatedMedia.pronunciation_url) {
+        data.pronunciation_url = autoPopulatedMedia.pronunciation_url;
+      }
+      if (!data.pronunciation_file && autoPopulatedMedia.pronunciation_file) {
+        data.pronunciation_file = autoPopulatedMedia.pronunciation_file;
       }
       
       // Save profile
@@ -766,7 +834,10 @@
     // Submit all profiles
     document.getElementById('submit-all-profiles').addEventListener('click', async function() {
       if (!profiles.en && !profiles.es) return;
-      
+
+      const submitButton = this;
+      submitButton.disabled = true;
+
       try {
         // Mark profiles as submitted with timestamp
         const submittedData = {
@@ -777,25 +848,33 @@
             es: profiles.es || null
           }
         };
-        
-        // Save to submitted profiles list in localStorage
-        const submittedProfiles = JSON.parse(localStorage.getItem('submittedProfiles') || '[]');
-        submittedProfiles.push(submittedData);
-        localStorage.setItem('submittedProfiles', JSON.stringify(submittedProfiles));
-        
+
+        const response = await fetch('/api/pending-profiles', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(submittedData)
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to submit profile');
+        }
+
         // Clear current working profiles
         profiles = { en: null, es: null };
         saveProfiles();
-        
+
         // Show success view
         showSuccessView();
-        
       } catch (error) {
         console.error('Error submitting profiles:', error);
         const message = currentLang === 'en'
           ? 'An error occurred while submitting your profile. Please try again.'
           : 'Ocurrió un error al enviar tu perfil. Por favor, inténtalo de nuevo.';
         alert(message);
+      } finally {
+        submitButton.disabled = false;
       }
     });
 

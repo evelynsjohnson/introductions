@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -47,64 +47,77 @@
         Discover the amazing people who have taken LocEssentials courses. Get to know their real-life personas and their creative alter egos!
       </p>
 
-      <!-- Filters Section -->
-      <section class="filters">
-        <div class="filter-group">
-          <h3 data-lang-key="filter-intro-type">Type of Introduction</h3>
-          <div class="filter-options">
-            <div class="filter-tag active" data-filter="type" data-value="all" onclick="toggleViewType('all')">
-              <span data-lang-key="filter-all-intros">All Introductions</span>
-              <span class="filter-count">0</span>
-            </div>
-            <div class="filter-tag" data-filter="type" data-value="real-life" onclick="toggleViewType('real-life')">
-              <span data-lang-key="filter-real-life">Us in Real Life</span>
-              <span class="filter-count">0</span>
-            </div>
-            <div class="filter-tag" data-filter="type" data-value="alter-ego" onclick="toggleViewType('alter-ego')">
-              <span data-lang-key="filter-alter-egos">Our Alter Egos</span>
-              <span class="filter-count">0</span>
+      <!-- Search and Filter Bar -->
+      <section class="search-filter-bar">
+        <div class="search-filter-controls">
+          <div class="search-container">
+            <input type="text" id="search-input" placeholder="Search" data-lang-key-placeholder="search-placeholder" class="search-input">
+            <button class="clear-search-btn" onclick="clearSearch()">×</button>
+          </div>
+          
+          <div class="filter-dropdown-container">
+            <button class="filter-dropdown-btn" id="filter-btn">
+              <span data-lang-key="filter-button">Filter</span>
+              <span class="dropdown-arrow">▼</span>
+            </button>
+            
+            <!-- Filter Panel -->
+            <div class="filter-panel" id="filter-panel" style="display: none;">
+              <div class="filter-panel-search">
+                <input type="text" id="filter-search-input" placeholder="Search Filter Tags" data-lang-key-placeholder="search-filter-tags" class="filter-search-input">
+                <button class="clear-filter-search-btn" onclick="clearFilterSearch()">×</button>
+              </div>
+              
+              <div class="filter-panel-content">
+                <!-- Profile Types -->
+                <div class="filter-category">
+                  <button class="filter-category-toggle" type="button" onclick="toggleFilterCategory('profile-types-options')">
+                    <span class="filter-category-title" data-lang-key="filter-profile-types">Profile Types</span>
+                    <span class="filter-category-arrow">▾</span>
+                  </button>
+                  <div class="filter-options-checkboxes filter-category-body" id="profile-types-options">
+                    <!-- Dynamically populated -->
+                  </div>
+                </div>
+                
+                <!-- Groups -->
+                <div class="filter-category">
+                  <button class="filter-category-toggle" type="button" onclick="toggleFilterCategory('group-checkboxes')">
+                    <span class="filter-category-title" data-lang-key="filter-groups">Groups</span>
+                    <span class="filter-category-arrow">▾</span>
+                  </button>
+                  <div class="filter-options-checkboxes filter-category-body" id="group-checkboxes">
+                    <!-- Dynamically populated -->
+                  </div>
+                </div>
+                
+                <!-- Language -->
+                <div class="filter-category">
+                  <button class="filter-category-toggle" type="button" onclick="toggleFilterCategory('language-checkboxes')">
+                    <span class="filter-category-title" data-lang-key="filter-language">Language</span>
+                    <span class="filter-category-arrow">▾</span>
+                  </button>
+                  <div class="filter-options-checkboxes filter-category-body" id="language-checkboxes">
+                    <!-- Dynamically populated -->
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
-
-        <div class="filter-group">
-          <h3 data-lang-key="filter-course">Course</h3>
-          <div class="filter-options" id="course-filters">
-            <!-- Dynamically populated -->
+        
+        <!-- Active Filters Tags -->
+        <div class="results-row">
+          <div class="results-summary" id="results-summary">
+            <strong id="results-count">0</strong> <span data-lang-key="results-profiles">Results Shown</span>
           </div>
         </div>
 
-        <div class="filter-group">
-          <h3 data-lang-key="filter-section">Section</h3>
-          <div class="filter-options" id="section-filters">
-            <!-- Dynamically populated -->
-          </div>
+        <div class="active-filters" id="active-filters" style="display: none;">
+          <!-- Active filter tags will be inserted here -->
         </div>
 
-        <div class="filter-group hidden" id="team-filter-group">
-          <h3 data-lang-key="filter-team">Team</h3>
-          <div class="filter-options" id="team-filters">
-            <!-- Dynamically populated if teams exist -->
-          </div>
-        </div>
-
-        <div class="filter-group">
-          <h3 data-lang-key="filter-language">Language</h3>
-          <div class="filter-options">
-            <div class="filter-tag" data-filter="language" data-value="en" onclick="toggleFilter('language', 'en')">
-              <span>English</span>
-              <span class="filter-count">0</span>
-            </div>
-            <div class="filter-tag" data-filter="language" data-value="es" onclick="toggleFilter('language', 'es')">
-              <span>Español</span>
-              <span class="filter-count">0</span>
-            </div>
-          </div>
-        </div>
-
-        <div style="text-align: right; margin-top: var(--spacing-md);">
-          <button class="btn btn-outline" onclick="clearFilters()" data-lang-key="btn-clear-filters">Clear All Filters</button>
-        </div>
+        <button class="clear-filters-link" type="button" id="clear-filters-btn" onclick="clearAllFilters()">Clear Filters</button>
       </section>
 
       <!-- Cards Grid -->
@@ -154,13 +167,14 @@
         }
       });
       
+      // Update placeholder
+      const searchInput = document.getElementById('search-input');
+      if (searchInput && pageTranslations[lang]) {
+        searchInput.placeholder = pageTranslations[lang]['search-placeholder'] || 'Search by name...';
+      }
+      
       // Update HTML lang attribute
       document.documentElement.lang = lang;
-      
-      // For now, this updates the filter to show only selected language
-      // In future, this could redirect to /en/ or /es/ subdirectories
-      activeFilters.language = lang;
-      renderCards();
     }
     
     // Apply saved language on page load
@@ -182,14 +196,17 @@
           }
         });
         
+        // Update placeholder
+        const searchInput = document.getElementById('search-input');
+        if (searchInput && pageTranslations[currentLang]) {
+          searchInput.placeholder = pageTranslations[currentLang]['search-placeholder'] || 'Search by name...';
+        }
+        
         // Update HTML lang attribute
         document.documentElement.lang = currentLang;
-        
-        // Update filter to match saved language
-        activeFilters.language = currentLang;
-        renderCards();
       }
     });
   </script>
 </body>
 </html>
+>

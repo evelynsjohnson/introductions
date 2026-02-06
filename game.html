@@ -61,18 +61,77 @@
           <button class="btn btn-secondary" onclick="resetGame()" data-lang-key="btn-reset-game">Reset Game</button>
         </div>
 
-        <!-- Course/Section Filter for Game -->
-        <div style="margin-bottom: var(--spacing-lg);">
-          <label for="game-course-filter" style="display: inline-block; margin-right: var(--spacing-sm);" data-lang-key="filter-by-course">Filter by Course:</label>
-          <select id="game-course-filter" onchange="filterGame()" style="padding: var(--spacing-xs) var(--spacing-sm); border-radius: var(--radius-sm);">
-            <option value="all" data-lang-key="filter-all-courses">All Courses</option>
-          </select>
+        <!-- Search and Filter Bar -->
+        <section class="search-filter-bar" style="margin-bottom: var(--spacing-lg);">
+          <div class="search-filter-controls">
+            <div class="search-container">
+              <input type="text" id="search-input" placeholder="Search" data-lang-key-placeholder="search-placeholder" class="search-input">
+              <button class="clear-search-btn" onclick="clearSearch()">×</button>
+            </div>
+          
+            <div class="filter-dropdown-container">
+              <button class="filter-dropdown-btn" id="filter-btn">
+                <span data-lang-key="filter-button">Filter</span>
+                <span class="dropdown-arrow">▼</span>
+              </button>
+            
+              <!-- Filter Panel -->
+              <div class="filter-panel" id="filter-panel" style="display: none;">
+                <div class="filter-panel-search">
+                  <input type="text" id="filter-search-input" placeholder="Search Filter Tags" data-lang-key-placeholder="search-filter-tags" class="filter-search-input">
+                  <button class="clear-filter-search-btn" onclick="clearFilterSearch()">×</button>
+                </div>
+              
+                <div class="filter-panel-content">
+                  <!-- Profile Types -->
+                  <div class="filter-category">
+                    <button class="filter-category-toggle" type="button" onclick="toggleFilterCategory('profile-types-options')">
+                      <span class="filter-category-title" data-lang-key="filter-profile-types">Profile Types</span>
+                      <span class="filter-category-arrow">▾</span>
+                    </button>
+                    <div class="filter-options-checkboxes filter-category-body" id="profile-types-options">
+                      <!-- Dynamically populated -->
+                    </div>
+                  </div>
+                
+                  <!-- Groups -->
+                  <div class="filter-category">
+                    <button class="filter-category-toggle" type="button" onclick="toggleFilterCategory('group-checkboxes')">
+                      <span class="filter-category-title" data-lang-key="filter-groups">Groups</span>
+                      <span class="filter-category-arrow">▾</span>
+                    </button>
+                    <div class="filter-options-checkboxes filter-category-body" id="group-checkboxes">
+                      <!-- Dynamically populated -->
+                    </div>
+                  </div>
+                
+                  <!-- Language -->
+                  <div class="filter-category">
+                    <button class="filter-category-toggle" type="button" onclick="toggleFilterCategory('language-checkboxes')">
+                      <span class="filter-category-title" data-lang-key="filter-language">Language</span>
+                      <span class="filter-category-arrow">▾</span>
+                    </button>
+                    <div class="filter-options-checkboxes filter-category-body" id="language-checkboxes">
+                      <!-- Dynamically populated -->
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
 
-          <label for="game-section-filter" style="display: inline-block; margin-left: var(--spacing-lg); margin-right: var(--spacing-sm);" data-lang-key="filter-by-section">Section:</label>
-          <select id="game-section-filter" onchange="filterGame()" style="padding: var(--spacing-xs) var(--spacing-sm); border-radius: var(--radius-sm);">
-            <option value="all" data-lang-key="filter-all-sections">All Sections</option>
-          </select>
-        </div>
+          <div class="results-row">
+            <div class="results-summary" id="results-summary">
+              <strong id="results-count">0</strong> <span data-lang-key="results-profiles">Results Shown</span>
+            </div>
+          </div>
+
+          <div class="active-filters" id="active-filters" style="display: none;">
+            <!-- Active filter tags will be inserted here -->
+          </div>
+
+          <button class="clear-filters-link" type="button" id="clear-filters-btn" onclick="clearAllFilters()">Clear Filters</button>
+        </section>
 
         <!-- Game Grid - Real Life -->
         <h2 data-lang-key="game-real-life-title">Real Life Personas</h2>
@@ -119,18 +178,56 @@
     let selectedRealLife = null;
     let selectedAlterEgo = null;
     let matches = [];
-    let currentFilter = { course: 'all', section: 'all' };
+    let filterOptionsCache = {
+      profileTypes: [
+        { value: 'real-life', label: 'Us In Real Life' },
+        { value: 'alter-ego', label: 'Our Alter Egos' }
+      ],
+      languages: [
+        { value: 'en', label: 'English' },
+        { value: 'es', label: 'Spanish' }
+      ],
+      groups: []
+    };
+    let activeFilters = {
+      profileTypes: [],
+      languages: [],
+      groups: [],
+      search: ''
+    };
+
+    async function loadFilterOptions() {
+      try {
+        const response = await fetch('/api/filter-options');
+        if (response.ok) {
+          const data = await response.json();
+          filterOptionsCache = {
+            profileTypes: data.profileTypes || filterOptionsCache.profileTypes,
+            languages: data.languages || filterOptionsCache.languages,
+            groups: data.groups || []
+          };
+        }
+      } catch (error) {
+        console.warn('Failed to load filter options:', error);
+      }
+      return filterOptionsCache;
+    }
+
+    function getFilterOptions() {
+      return filterOptionsCache;
+    }
 
     // Load game data
     async function loadGame() {
       try {
-        const response = await fetch('/_data/students.json');
+        await loadFilterOptions();
+        const response = await fetch('/api/accepted-profiles');
         const data = await response.json();
-        gameStudents = data.students.filter(s => s.public_display_consent);
-        
+        gameStudents = buildGameEntries(data);
+
         // Populate filter dropdowns
-        populateFilters();
-        
+        initializeFilters();
+
         // Shuffle and render
         filterGame();
       } catch (error) {
@@ -138,73 +235,478 @@
       }
     }
 
-    function populateFilters() {
-      const courses = [...new Set(gameStudents.map(s => s.course))];
-      const sections = [...new Set(gameStudents.map(s => s.section))].sort().reverse();
-      
-      const courseSelect = document.getElementById('game-course-filter');
-      courses.forEach(course => {
-        const option = document.createElement('option');
-        option.value = course;
-        option.textContent = course;
-        courseSelect.appendChild(option);
-      });
+    function buildGameEntries(profiles) {
+      const entries = [];
+      (profiles || []).forEach(profile => {
+        const preferred = profile.profiles?.[currentLang] || profile.profiles?.en || profile.profiles?.es;
+        if (!preferred) return;
 
-      const sectionSelect = document.getElementById('game-section-filter');
-      sections.forEach(section => {
-        const option = document.createElement('option');
-        option.value = section;
-        option.textContent = section;
-        sectionSelect.appendChild(option);
+        const hasReal = Boolean(preferred.full_name || preferred.preferred_name);
+        const hasAlter = Boolean(preferred.alter_ego_name);
+        if (!hasReal || !hasAlter) return;
+
+        entries.push({
+          id: profile._id,
+          type: 'real-life',
+          name: preferred.preferred_name || preferred.full_name || '',
+          photo: preferred.photo_url || '',
+          photoAlt: preferred.photo_alt || '',
+          role: preferred.role || '',
+          organization: preferred.organization || '',
+          about: preferred.about || '',
+          course: preferred.course || '',
+          section: preferred.section || '',
+          team: preferred.team || '',
+          pronunciation_url: preferred.pronunciation_url || '',
+          language: currentLang,
+          raw: preferred
+        });
+
+        entries.push({
+          id: profile._id,
+          type: 'alter-ego',
+          name: preferred.alter_ego_name || '',
+          photo: preferred.alter_ego_photo_url || '',
+          photoAlt: preferred.alter_ego_alt || '',
+          role: preferred.alter_ego_job || '',
+          organization: preferred.alter_ego_org || '',
+          about: preferred.alter_ego_about || '',
+          course: preferred.course || '',
+          section: preferred.section || '',
+          team: preferred.team || '',
+          language: currentLang,
+          raw: preferred
+        });
+      });
+      return entries;
+    }
+
+    function escapeHtml(value) {
+      if (value === null || value === undefined) return '';
+      return String(value)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
+    function formatField(label, value) {
+      if (!value) return '';
+      return `
+        <div>
+          <div class="profile-field-label">${label}</div>
+          <div class="profile-field-value">${escapeHtml(value)}</div>
+        </div>
+      `;
+    }
+
+    function renderProfileModal(student) {
+      // Use student.raw if available; otherwise fallback to empty object
+      const data = student.raw || {};
+      const name = data.preferred_name || data.full_name || student.name || 'Profile';
+      const showRealLife = student.type === 'real-life';
+      const showAlterEgo = student.type === 'alter-ego';
+
+      const modal = document.createElement('div');
+      modal.className = 'profile-modal-overlay';
+      
+      modal.innerHTML = `
+        <div class="profile-modal">
+          <div class="profile-modal-header">
+            <button class="profile-modal-btn-close" onclick="this.closest('.profile-modal-overlay').remove()">Close</button>
+          </div>
+          <div class="profile-modal-body">
+            ${showRealLife ? `
+              <h3 class="profile-section-title">Real Life Profile</h3>
+              <div class="profile-content-grid">
+                <div>
+                  ${data.photo_url ? 
+                    `<img src="${data.photo_url}" alt="${escapeHtml(data.photo_alt || name)}" class="profile-main-image">` : 
+                    `<div class="profile-main-image" style="background: #f1f5f9; display: flex; align-items: center; justify-content: center; color: #94a3b8; font-weight: 500;">No image</div>`
+                  }
+                  ${data.pronunciation_url ? `
+                    <div class="audio-controls-container" style="margin-top: 1rem;">
+                      <div class="audio-label" style="font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: #64748b; margin-bottom: 0.25rem;">Pronunciation</div>
+                      <audio controls src="${data.pronunciation_url}" style="width: 100%;"></audio>
+                    </div>
+                  ` : ''}
+                </div>
+                
+                <div class="profile-details-grid">
+                  ${formatField('Full name', data.full_name)}
+                  ${formatField('Preferred name', data.preferred_name)}
+                  ${formatField('Pronouns', data.pronouns)}
+                  ${formatField('Languages', data.languages)}
+                  ${formatField('Course', data.course)}
+                  ${formatField('Section', data.section)}
+                  ${formatField('Team', data.team)}
+                  ${formatField('Enrollment reason', data.enrollment_reason)}
+                  ${formatField('Goals', data.goals)}
+                  <div class="profile-detail-full-width">${formatField('Social media', data.social_media)}</div>
+                  <div class="profile-detail-full-width">${formatField('About', data.about)}</div>
+                  <div class="profile-detail-full-width">${formatField('Previous experience', data.previous_experience)}</div>
+                </div>
+              </div>
+            ` : ''}
+
+            ${showAlterEgo ? `
+              <h3 class="profile-section-title">Alter Ego</h3>
+              <div class="profile-content-grid">
+                <div>
+                  ${data.alter_ego_photo_url ? 
+                    `<img src="${data.alter_ego_photo_url}" alt="${escapeHtml(data.alter_ego_alt || data.alter_ego_name || '')}" class="profile-main-image">` : 
+                    `<div class="profile-main-image" style="background: #f1f5f9; display: flex; align-items: center; justify-content: center; color: #94a3b8; font-weight: 500;">No image</div>`
+                  }
+                </div>
+                
+                <div class="profile-details-grid">
+                  ${formatField('Alter ego name', data.alter_ego_name)}
+                  ${formatField('Job title', data.alter_ego_job)}
+                  ${formatField('Organization', data.alter_ego_org)}
+                  ${formatField('Photo credits', data.alter_ego_credits)}
+                  ${formatField('Subject fields', data.subject_fields)}
+                  ${formatField('Hobbies', data.hobbies)}
+                  <div class="profile-detail-full-width">${formatField('About', data.alter_ego_about)}</div>
+                </div>
+              </div>
+            ` : ''}
+          </div>
+        </div>
+      `;
+      document.body.appendChild(modal);
+      // Close on backdrop click
+      modal.onclick = (e) => { 
+        if (e.target === modal) modal.remove(); 
+      };
+    }
+
+    function initializeFilters() {
+      const { profileTypes, languages, groups } = getFilterOptions();
+
+      const profileTypeContainer = document.getElementById('profile-types-options');
+      if (profileTypeContainer) {
+        profileTypeContainer.innerHTML = '';
+        profileTypes.forEach(type => {
+          const value = typeof type === 'string' ? type : type.value;
+          const labelText = typeof type === 'string' ? getProfileTypeLabel(type) : (type.label || getProfileTypeLabel(type.value));
+          const label = document.createElement('label');
+          label.className = 'filter-checkbox-label';
+          label.innerHTML = `
+            <input type="checkbox" value="${value}" onchange="applyFilters()">
+            <span>${labelText}</span>
+          `;
+          profileTypeContainer.appendChild(label);
+        });
+      }
+
+      const groupCheckboxes = document.getElementById('group-checkboxes');
+      if (groupCheckboxes) {
+        groupCheckboxes.innerHTML = '';
+        groups.forEach(group => {
+          const label = document.createElement('label');
+          label.className = 'filter-checkbox-label';
+          label.innerHTML = `
+            <input type="checkbox" value="${group}" onchange="applyFilters()">
+            <span>${group}</span>
+          `;
+          groupCheckboxes.appendChild(label);
+        });
+      }
+
+      const languageCheckboxes = document.getElementById('language-checkboxes');
+      if (languageCheckboxes) {
+        languageCheckboxes.innerHTML = '';
+        languages.forEach(lang => {
+          const value = typeof lang === 'string' ? lang : lang.value;
+          const labelText = typeof lang === 'string' ? getLanguageLabel(lang) : (lang.label || getLanguageLabel(lang.value));
+          const label = document.createElement('label');
+          label.className = 'filter-checkbox-label';
+          label.innerHTML = `
+            <input type="checkbox" value="${value}" onchange="applyFilters()">
+            <span>${labelText}</span>
+          `;
+          languageCheckboxes.appendChild(label);
+        });
+      }
+
+      updateResultsSummary();
+    }
+
+    function applyFilters() {
+      const profileTypeCheckboxes = document.querySelectorAll('#profile-types-options input[type="checkbox"]');
+      activeFilters.profileTypes = Array.from(profileTypeCheckboxes).filter(cb => cb.checked).map(cb => cb.value);
+
+      const languageCheckboxes = document.querySelectorAll('#language-checkboxes input');
+      activeFilters.languages = Array.from(languageCheckboxes).filter(cb => cb.checked).map(cb => cb.value);
+
+      const groupCheckboxes = document.querySelectorAll('#group-checkboxes input');
+      activeFilters.groups = Array.from(groupCheckboxes).filter(cb => cb.checked).map(cb => cb.value);
+
+      filterGame();
+      updateActiveFilterTags();
+    }
+
+    function performSearch() {
+      const searchInput = document.getElementById('search-input');
+      if (!searchInput) return;
+      activeFilters.search = searchInput.value.toLowerCase().trim();
+
+      filterGame();
+      updateActiveFilterTags();
+    }
+
+    function clearSearch() {
+      const searchInput = document.getElementById('search-input');
+      if (searchInput) searchInput.value = '';
+      activeFilters.search = '';
+      filterGame();
+      updateActiveFilterTags();
+    }
+
+    function clearFilterSearch() {
+      const filterSearch = document.getElementById('filter-search-input');
+      if (filterSearch) filterSearch.value = '';
+      filterFilterTags('');
+    }
+
+    function filterFilterTags(searchTerm) {
+      const term = searchTerm.toLowerCase();
+      document.querySelectorAll('#filter-panel .filter-checkbox-label').forEach(label => {
+        const text = label.textContent.toLowerCase();
+        label.style.display = text.includes(term) ? 'flex' : 'none';
       });
     }
 
+    function toggleFilterPanel() {
+      const panel = document.getElementById('filter-panel');
+      if (!panel) return;
+      const isVisible = panel.style.display === 'block';
+      panel.style.display = isVisible ? 'none' : 'block';
+    }
+
+    function updateActiveFilterTags() {
+      const container = document.getElementById('active-filters');
+      if (!container) return;
+
+      container.innerHTML = '';
+      let hasActiveFilters = false;
+
+      activeFilters.profileTypes.forEach(type => {
+        hasActiveFilters = true;
+        const label = getProfileTypeLabel(type);
+        container.appendChild(createFilterTag(label, 'profileType', type));
+      });
+
+      activeFilters.languages.forEach(lang => {
+        hasActiveFilters = true;
+        const label = getLanguageLabel(lang);
+        container.appendChild(createFilterTag(label, 'language', lang));
+      });
+
+      activeFilters.groups.forEach(group => {
+        hasActiveFilters = true;
+        container.appendChild(createFilterTag(group, 'group', group));
+      });
+
+      container.style.display = hasActiveFilters ? 'flex' : 'none';
+    }
+
+    function toggleFilterCategory(id) {
+      const body = document.getElementById(id);
+      if (!body) return;
+      body.classList.toggle('is-collapsed');
+      const toggle = body.closest('.filter-category')?.querySelector('.filter-category-toggle');
+      if (toggle) toggle.classList.toggle('is-collapsed');
+    }
+
+    function getProfileTypeLabel(value) {
+      const { profileTypes } = getFilterOptions();
+      const match = profileTypes.find(t => (t.value || t) === value);
+      if (match && typeof match === 'object') return match.label || match.value;
+      if (value === 'real-life') return 'Us In Real Life';
+      if (value === 'alter-ego') return 'Our Alter Egos';
+      return value;
+    }
+
+    function getLanguageLabel(value) {
+      const { languages } = getFilterOptions();
+      const match = languages.find(t => (t.value || t) === value);
+      if (match && typeof match === 'object') return match.label || match.value;
+      if (value === 'en') return 'English';
+      if (value === 'es') return 'Spanish';
+      return value;
+    }
+
+    function createFilterTag(label, type, value) {
+      const tag = document.createElement('div');
+      tag.className = 'active-filter-tag';
+      tag.innerHTML = `
+        <span>${label}</span>
+        <button onclick="removeFilter('${type}', '${value}')">×</button>
+      `;
+      return tag;
+    }
+
+    function removeFilter(type, value) {
+      if (type === 'profileType') {
+        activeFilters.profileTypes = activeFilters.profileTypes.filter(t => t !== value);
+        const checkbox = document.querySelector(`.filter-options-checkboxes input[value="${value}"]`);
+        if (checkbox) checkbox.checked = false;
+      } else if (type === 'language') {
+        activeFilters.languages = activeFilters.languages.filter(l => l !== value);
+        const checkbox = document.querySelector(`#language-checkboxes input[value="${value}"]`);
+        if (checkbox) checkbox.checked = false;
+      } else if (type === 'group') {
+        activeFilters.groups = activeFilters.groups.filter(g => g !== value);
+        const checkbox = document.querySelector(`#group-checkboxes input[value="${value}"]`);
+        if (checkbox) checkbox.checked = false;
+      }
+
+      filterGame();
+      updateActiveFilterTags();
+    }
+
+    function clearAllFilters() {
+      activeFilters = {
+        profileTypes: [],
+        languages: [],
+        groups: [],
+        search: ''
+      };
+
+      document.querySelectorAll('.filter-options-checkboxes input[type="checkbox"]').forEach(cb => {
+        cb.checked = false;
+        const label = cb.closest('.filter-checkbox-label');
+        if (label) label.classList.remove('is-checked');
+      });
+
+      const searchInput = document.getElementById('search-input');
+      if (searchInput) searchInput.value = '';
+      const clearBtn = document.querySelector('.clear-search-btn');
+      if (clearBtn) clearBtn.style.display = 'none';
+
+      filterGame();
+      updateActiveFilterTags();
+    }
+
     function filterGame() {
-      currentFilter.course = document.getElementById('game-course-filter').value;
-      currentFilter.section = document.getElementById('game-section-filter').value;
-      
       let filtered = gameStudents.filter(s => {
-        if (currentFilter.course !== 'all' && s.course !== currentFilter.course) return false;
-        if (currentFilter.section !== 'all' && s.section !== currentFilter.section) return false;
+        if (activeFilters.profileTypes.length > 0) {
+          const wantsReal = activeFilters.profileTypes.includes('real-life');
+          const wantsAlter = activeFilters.profileTypes.includes('alter-ego');
+          if (!wantsReal || !wantsAlter) return false;
+        }
+
+        if (activeFilters.languages.length > 0 && !activeFilters.languages.includes(currentLang)) {
+          return false;
+        }
+
+        if (activeFilters.groups.length > 0) {
+          const hasMatchingGroup = activeFilters.groups.some(group =>
+            s.section === group || s.team === group
+          );
+          if (!hasMatchingGroup) return false;
+        }
+
+        if (activeFilters.search) {
+          const term = activeFilters.search;
+          const name = s.name ? s.name.toLowerCase() : '';
+          if (!name.includes(term)) {
+            return false;
+          }
+        }
+
         return true;
       });
-      
+
       renderGame(filtered);
     }
 
     function renderGame(students) {
       // Shuffle students
-      const shuffledReal = [...students].sort(() => Math.random() - 0.5);
-      const shuffledAlter = [...students].sort(() => Math.random() - 0.5);
+      const realEntries = students.filter(s => s.type === 'real-life');
+      const alterEntries = students.filter(s => s.type === 'alter-ego');
+      const shuffledReal = [...realEntries].sort(() => Math.random() - 0.5);
+      const shuffledAlter = [...alterEntries].sort(() => Math.random() - 0.5);
       
       // Reset game state
       matches = [];
       selectedRealLife = null;
       selectedAlterEgo = null;
       document.getElementById('score').textContent = '0';
-      document.getElementById('total').textContent = students.length;
+      document.getElementById('total').textContent = Math.min(realEntries.length, alterEntries.length);
+      updateResultsSummary(Math.min(realEntries.length, alterEntries.length));
       document.getElementById('victory-message').classList.add('hidden');
       
       // Render real life cards
       const realGrid = document.getElementById('real-life-grid');
-      realGrid.innerHTML = shuffledReal.map(s => createGameCard(s, 'real-life')).join('');
+      realGrid.innerHTML = shuffledReal.map(s => createGameCard(s)).join('');
       
       // Render alter ego cards
       const alterGrid = document.getElementById('alter-ego-grid');
-      alterGrid.innerHTML = shuffledAlter.map(s => createGameCard(s, 'alter-ego')).join('');
+      alterGrid.innerHTML = shuffledAlter.map(s => createGameCard(s)).join('');
     }
 
-    function createGameCard(student, type) {
-      const isAlter = type === 'alter-ego';
-      const name = isAlter ? student.alter_ego.name : student.preferred_name;
-      const photo = isAlter ? student.alter_ego.photo : student.photo;
-      const photoAlt = isAlter ? student.alter_ego.photo_alt : student.photo_alt;
-      
+    // Create rich profile card for game but keep selection capability
+    function createGameCard(student) {
+      const isAlter = student.type === 'alter-ego';
+      const name = student.name || '';
+      const photo = student.photo || 'assets/images/placeholder-avatar.svg';
+      const photoAlt = student.photoAlt || '';
+      const languageLabel = student.language === 'en' ? 'English' : 'Español';
+      const roleLine = `${student.role ? student.role : ''} ${student.organization ? `at ${student.organization}` : ''}`.trim();
+
+      // Encode student data for click handler (simplified for ID/Type lookups)
+      // The formatting matches createProfileCard from main.js but wrapped in game interaction logic
       return `
-        <div class="game-card" data-id="${student.id}" data-type="${type}" onclick="selectCard('${student.id}', '${type}')">
-          <img src="${photo}" alt="${photoAlt}">
-          <h3 style="font-size: 1.1rem; color: var(--dark-blue);">${name}</h3>
-          <p style="font-size: 0.85rem; color: #666;">${isAlter ? 'Alter Ego' : 'Real Life'}</p>
+        <div class="game-card enhanced-card" 
+             data-id="${student.id}" 
+             data-type="${student.type}" 
+             onclick="selectCard('${student.id}', '${student.type}')"
+             style="cursor: pointer; position: relative;">
+          
+          <div class="card-header enhanced-card-header">
+            <img src="${photo}" alt="${photoAlt}" class="card-image enhanced-card-image" onerror="this.src='assets/images/placeholder-avatar.svg'">
+          </div>
+          
+          <div class="card-body enhanced-card-body" style="padding-bottom: 2rem;">
+            <div class="card-info">
+              <h3 class="card-title enhanced-title">${name}</h3>
+              <p class="card-subtitle enhanced-subtitle">${roleLine}</p>
+            </div>
+            
+            <div class="card-meta enhanced-meta">
+              ${student.course ? `<span class="meta-tag course">${student.course}</span>` : ''}
+              ${student.section ? `<span class="meta-tag section">${student.section}</span>` : ''}
+              ${student.team ? `<span class="meta-tag team">${student.team}</span>` : ''}
+              <span class="meta-tag language">${languageLabel}</span>
+            </div>
+            
+            <p class="card-bio enhanced-bio">${student.about || ''}</p>
+            
+            ${student.type === 'real-life' && student.pronunciation_url ? `
+              <div class="audio-player enhanced-audio" style="margin-top: 0.5rem;" onclick="event.stopPropagation()">
+                <audio controls>
+                  <source src="${student.pronunciation_url}" type="audio/mpeg">
+                </audio>
+              </div>
+            ` : ''}
+            
+            <div class="profile-view-btn-container" style="margin-top: auto;">
+              <button class="profile-view-btn" 
+                      type="button" 
+                      onclick="event.stopPropagation(); renderProfileModal(gameStudents.find(s => s.id === '${student.id}' && s.type === '${student.type}'))">
+                View Profile
+              </button>
+            </div>
+          </div>
+          
+          <!-- Selection Overlay -->
+          <div class="selection-overlay" style="position:absolute; inset:0; border:4px solid var(--pink); border-radius:20px; display:none; pointer-events:none; z-index:10;"></div>
+          <div class="match-overlay" style="position:absolute; inset:0; background:rgba(96, 255, 108, 0.2); border:4px solid var(--dark-green); border-radius:20px; display:none; pointer-events:none; z-index:10; align-items:center; justify-content:center;">
+             <span style="font-size:3rem; color:var(--dark-green); text-shadow:0 2px 4px rgba(255,255,255,0.8);">✓</span>
+          </div>
         </div>
       `;
     }
@@ -282,6 +784,13 @@
     function resetGame() {
       filterGame();
     }
+
+    function updateResultsSummary(count) {
+      const resultsCount = document.getElementById('results-count');
+      if (resultsCount) {
+        resultsCount.textContent = count !== undefined ? count : gameStudents.length;
+      }
+    }
     
     // Language switching
     let currentLang = localStorage.getItem('preferredLanguage') || 'en';
@@ -304,13 +813,62 @@
         }
       });
       
+      const searchInput = document.getElementById('search-input');
+      if (searchInput && pageTranslations[lang]) {
+        searchInput.placeholder = pageTranslations[lang]['search-placeholder'] || 'Search by name...';
+      }
+
       // Update HTML lang attribute
       document.documentElement.lang = lang;
+
+      // Reload game to use the chosen language data
+      loadGame();
     }
 
     // Load game on page load
     document.addEventListener('DOMContentLoaded', () => {
       loadGame();
+
+      const filterBtn = document.getElementById('filter-btn');
+      if (filterBtn) {
+        filterBtn.addEventListener('click', function(event) {
+          event.stopPropagation();
+          toggleFilterPanel();
+        });
+      }
+
+      const searchInput = document.getElementById('search-input');
+      if (searchInput) {
+        searchInput.addEventListener('keyup', function(event) {
+          if (event.key === 'Enter') {
+            performSearch();
+          }
+        });
+
+        let searchTimeout;
+        searchInput.addEventListener('input', function() {
+          clearTimeout(searchTimeout);
+          searchTimeout = setTimeout(() => {
+            performSearch();
+          }, 300);
+        });
+      }
+
+      const filterSearchInput = document.getElementById('filter-search-input');
+      if (filterSearchInput) {
+        filterSearchInput.addEventListener('input', function() {
+          filterFilterTags(this.value);
+        });
+      }
+
+      document.addEventListener('change', (event) => {
+        if (event.target && event.target.matches('.filter-checkbox-label input[type="checkbox"]')) {
+          const label = event.target.closest('.filter-checkbox-label');
+          if (label) {
+            label.classList.toggle('is-checked', event.target.checked);
+          }
+        }
+      });
       
       // Apply saved language
       if (currentLang !== 'en') {
@@ -330,8 +888,21 @@
           }
         });
         
+        const searchInput = document.getElementById('search-input');
+        if (searchInput && pageTranslations[currentLang]) {
+          searchInput.placeholder = pageTranslations[currentLang]['search-placeholder'] || 'Search by name...';
+        }
+
         // Update HTML lang attribute
         document.documentElement.lang = currentLang;
+      }
+    });
+
+    document.addEventListener('click', function(event) {
+      const panel = document.getElementById('filter-panel');
+      const btn = document.querySelector('.filter-dropdown-btn');
+      if (panel && btn && !panel.contains(event.target) && !btn.contains(event.target)) {
+        panel.style.display = 'none';
       }
     });
   </script>

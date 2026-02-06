@@ -89,54 +89,202 @@
         </a>
         <nav>
           <ul>
-            <li><a href="index.html">Meet Our Team</a></li>
-            <li><a href="form.html">Submit Your Profile</a></li>
-            <li><a href="admin-export.html" style="color: #ef91c6; font-weight: 600;">Admin Export</a></li>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="admin-export.html" style="color: #ef91c6; font-weight: 600;">Admin Dashboard</a></li>
           </ul>
         </nav>
+        <div class="language-toggle">
+          <button class="lang-btn active" onclick="switchLanguage('en')">English</button>
+          <button class="lang-btn" onclick="switchLanguage('es')">Español</button>
+        </div>
       </div>
     </div>
   </header>
 
   <main>
     <div class="admin-container">
-      <h1>Admin - Export Submitted Profiles</h1>
-      <p style="color: #666; margin-bottom: 2rem;">
-        View and export all submitted student profiles. Each profile is stored in the browser's localStorage.
-      </p>
+      <h1 id="admin-tab-heading" style="margin-bottom: 0.5rem;">Pending Profiles</h1>
+      <p id="admin-tab-subheading" style="color: #666; margin-bottom: 2rem;">Review and approve profiles before they appear on the site.</p>
 
-      <!-- Export All Section -->
-      <div class="export-all-section">
-        <h2 style="margin-bottom: 1rem;">Export Options</h2>
-        <div class="profile-actions">
-          <button class="btn btn-primary" onclick="exportCompleteZip()">
-            📦 Download Complete Export (ZIP with Images, Audio & JSON)
-          </button>
-          <button class="btn btn-secondary" onclick="exportAllAsSingleJSON()">
-            Download All as Single JSON
-          </button>
-          <button class="btn btn-danger" onclick="clearAllProfiles()">
-            Clear All Submitted Profiles
-          </button>
-        </div>
-        
-        <div id="export-progress" style="display: none; margin-top: 1rem; padding: 1rem; background: white; border-radius: 6px;">
-          <p style="margin: 0; color: #2b7bb9;"><strong>Preparing export...</strong></p>
-          <div style="width: 100%; height: 8px; background: #e0e0e0; border-radius: 4px; margin-top: 0.5rem; overflow: hidden;">
-            <div id="progress-bar" style="width: 0%; height: 100%; background: #2b7bb9; transition: width 0.3s;"></div>
+      <!-- Tab Navigation -->
+      <div class="admin-tabs">
+        <button class="admin-tab active" onclick="switchTab('pending-profiles')">Pending Profiles</button>
+        <button class="admin-tab" onclick="switchTab('all-profiles')">All Profiles</button>
+        <button class="admin-tab" onclick="switchTab('manage-filters')">Manage Filters</button>
+      </div>
+
+      <!-- Tab Content: Pending Profiles -->
+      <div id="pending-profiles-content" class="admin-tab-content active">
+        <div class="export-all-section">
+          
+          <div class="profile-list" id="pending-profile-list">
+            <div class="empty-state">
+              <p>No pending profiles at the moment.</p>
+              <p style="font-size: 0.9rem; margin-top: 0.5rem;">When students submit profiles, they will appear here for review.</p>
+            </div>
           </div>
-          <p id="progress-text" style="margin-top: 0.5rem; font-size: 0.9rem; color: #666;">Starting...</p>
-        </div>
-        
-        <div class="stats" id="stats">
-          <!-- Stats will be populated by JavaScript -->
         </div>
       </div>
 
-      <!-- Profile List -->
-      <h2>Submitted Profiles</h2>
-      <div class="profile-list" id="profile-list">
-        <!-- Profiles will be populated by JavaScript -->
+      <!-- Tab Content: All Profiles -->
+      <div id="all-profiles-content" class="admin-tab-content">
+        <!-- Search and Filter Bar -->
+        <section class="search-filter-bar" style="margin-bottom: 2rem;">
+          <div class="search-filter-controls">
+            <div class="search-container">
+              <input type="text" id="admin-search-input" placeholder="Search profiles..." class="search-input">
+              <button class="clear-search-btn" onclick="clearAdminSearch()">×</button>
+            </div>
+            
+            <div class="filter-dropdown-container">
+              <button class="filter-dropdown-btn" id="admin-filter-btn">
+                <span>Filter</span>
+                <span class="dropdown-arrow">▼</span>
+              </button>
+              
+              <!-- Filter Panel -->
+              <div class="filter-panel" id="admin-filter-panel" style="display: none;">
+                <div class="filter-panel-search">
+                  <input type="text" id="admin-filter-search-input" placeholder="Search Filter Tags" class="filter-search-input">
+                  <button class="clear-filter-search-btn" onclick="clearAdminFilterSearch()">×</button>
+                </div>
+                
+                <div class="filter-panel-content">
+                  <!-- Profile Types -->
+                  <div class="filter-category">
+                    <button class="filter-category-toggle" type="button" onclick="toggleFilterCategory('admin-profile-type-checkboxes')">
+                      <span class="filter-category-title">Profile Types</span>
+                      <span class="filter-category-arrow">▾</span>
+                    </button>
+                    <div class="filter-options-checkboxes filter-category-body" id="admin-profile-type-checkboxes">
+                      <!-- Profile types will be populated dynamically -->
+                    </div>
+                  </div>
+                  
+                  <!-- Groups -->
+                  <div class="filter-category">
+                    <button class="filter-category-toggle" type="button" onclick="toggleFilterCategory('admin-group-checkboxes')">
+                      <span class="filter-category-title">Groups</span>
+                      <span class="filter-category-arrow">▾</span>
+                    </button>
+                    <div class="filter-options-checkboxes filter-category-body" id="admin-group-checkboxes">
+                      <!-- Groups will be populated dynamically -->
+                    </div>
+                  </div>
+                  
+                  <!-- Language -->
+                  <div class="filter-category">
+                    <button class="filter-category-toggle" type="button" onclick="toggleFilterCategory('admin-language-checkboxes')">
+                      <span class="filter-category-title">Language</span>
+                      <span class="filter-category-arrow">▾</span>
+                    </button>
+                    <div class="filter-options-checkboxes filter-category-body" id="admin-language-checkboxes">
+                      <!-- Languages will be populated dynamically -->
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="results-row">
+            <div class="results-summary" id="admin-results-summary">
+              <strong id="admin-results-count">0</strong> <span>Results Shown</span>
+            </div>
+          </div>
+
+          <!-- Active Filters -->
+          <div class="active-filters" id="admin-active-filters" style="display: none;">
+            <!-- Active filter tags will appear here -->
+          </div>
+
+          <button class="clear-filters-link" type="button" id="admin-clear-filters-btn" onclick="clearAdminFilters()">Clear Filters</button>
+        </section>
+
+        <div style="margin-bottom: 1rem;">
+          <button class="btn btn-secondary" id="toggle-export-btn" onclick="toggleExportSection()">Show Export Tools</button>
+        </div>
+
+        <!-- Export Selection Controls -->
+        <div class="export-all-section" id="export-section" style="margin-bottom: 2rem; display: none;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+            <div>
+              <button class="btn btn-secondary btn-small" onclick="selectAllProfiles()">Select All</button>
+              <button class="btn btn-secondary btn-small" onclick="clearProfileSelection()">Clear Selection</button>
+              <span id="selection-count" style="margin-left: 1rem; color: #666;">0 selected</span>
+            </div>
+            <button class="btn btn-primary" onclick="exportSelectedProfiles()" id="export-selected-btn" disabled>
+              📦 Export Selected
+            </button>
+          </div>
+          
+          <div id="export-progress" style="display: none; margin-top: 1rem; padding: 1rem; background: white; border-radius: 6px;">
+            <p style="margin: 0; color: #2b7bb9;"><strong>Preparing export...</strong></p>
+            <div style="width: 100%; height: 8px; background: #e0e0e0; border-radius: 4px; margin-top: 0.5rem; overflow: hidden;">
+              <div id="progress-bar" style="width: 0%; height: 100%; background: #2b7bb9; transition: width 0.3s;"></div>
+            </div>
+            <p id="progress-text" style="margin-top: 0.5rem; font-size: 0.9rem; color: #666;">Starting...</p>
+          </div>
+          
+          <div class="stats" id="stats">
+            <!-- Stats will be populated by JavaScript -->
+          </div>
+        </div>
+
+        <!-- Profile List -->
+        <div class="profile-list" id="profile-list">
+          <!-- Profiles will be populated by JavaScript -->
+        </div>
+      </div>
+
+      <!-- Tab Content: Manage Filters -->
+      <div id="manage-filters-content" class="admin-tab-content">
+        <!-- Filter/Label Management Section -->
+        <div class="export-all-section" style="margin-bottom: 2rem;">
+
+          <div class="add-filter-form" style="margin-bottom: 1.5rem; display: flex; gap: 0.75rem; flex-wrap: wrap;">
+            <select id="new-filter-category" class="filter-input" style="max-width: 220px;">
+              <option value="profileTypes">Profile Types</option>
+              <option value="groups">Groups</option>
+              <option value="languages">Languages</option>
+            </select>
+            <input type="text" id="new-filter-value" placeholder="New filter name" class="filter-input" style="min-width: 240px;">
+            <button class="btn btn-primary btn-small" onclick="addFilterOption()">+ Add Filter</button>
+          </div>
+          
+          <div class="filter-management-container" style="grid-template-columns: 1fr;">
+            <!-- Profile Types Management -->
+            <div class="filter-management-section">
+              <h3 style="margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+                <span>Profile Types</span>
+              </h3>
+              <div class="filter-tags-list" id="profile-type-tags-list">
+                <!-- Profile Types will be populated here -->
+              </div>
+            </div>
+
+            <!-- Groups Management -->
+            <div class="filter-management-section">
+              <h3 style="margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+                <span>Groups</span>
+              </h3>
+              <div class="filter-tags-list" id="group-tags-list">
+                <!-- Groups will be populated here -->
+              </div>
+            </div>
+
+            <!-- Languages Management -->
+            <div class="filter-management-section">
+              <h3 style="margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+                <span>Languages</span>
+              </h3>
+              <div class="filter-tags-list" id="language-tags-list">
+                <!-- Languages will be populated here -->
+              </div>
+            </div>
+          </div>
+        </div>
+
       </div>
     </div>
   </main>
@@ -146,47 +294,379 @@
   </footer>
 
   <script>
-    // Load submitted profiles
-    function loadSubmittedProfiles() {
-      const submittedProfiles = JSON.parse(localStorage.getItem('submittedProfiles') || '[]');
-      return submittedProfiles;
-    }
+    // Tab switching functionality
+    function switchTab(tabName) {
+      // Hide all tab contents
+      const tabContents = document.querySelectorAll('.admin-tab-content');
+      tabContents.forEach(content => content.classList.remove('active'));
+      
+      // Remove active class from all tabs
+      const tabs = document.querySelectorAll('.admin-tab');
+      tabs.forEach(tab => tab.classList.remove('active'));
+      
+      // Show selected tab content
+      const selectedContent = document.getElementById(tabName + '-content');
+      if (selectedContent) {
+        selectedContent.classList.add('active');
+      }
 
-    // Display profiles
-    function displayProfiles() {
-      const profiles = loadSubmittedProfiles();
-      const container = document.getElementById('profile-list');
-      const statsContainer = document.getElementById('stats');
-      
-      // Update stats
-      statsContainer.innerHTML = `
-        <div class="stat-item">
-          <strong>${profiles.length}</strong>
-          <span>Total Submissions</span>
-        </div>
-        <div class="stat-item">
-          <strong>${profiles.filter(p => p.profiles.en).length}</strong>
-          <span>English Profiles</span>
-        </div>
-        <div class="stat-item">
-          <strong>${profiles.filter(p => p.profiles.es).length}</strong>
-          <span>Spanish Profiles</span>
-        </div>
-      `;
-      
-      if (profiles.length === 0) {
-        container.innerHTML = '<div class="empty-state"><p>No profiles have been submitted yet.</p></div>';
-        return;
+      const heading = document.getElementById('admin-tab-heading');
+      const subheading = document.getElementById('admin-tab-subheading');
+      if (heading) {
+        if (tabName === 'pending-profiles') {
+          heading.textContent = 'Pending Profiles';
+          if (subheading) subheading.textContent = 'Review and approve profiles before they appear on the site.';
+        }
+        if (tabName === 'all-profiles') {
+          heading.textContent = 'All Profiles';
+          if (subheading) subheading.textContent = 'Search, filter, and export approved profiles.';
+        }
+        if (tabName === 'manage-filters') {
+          heading.textContent = 'Manage Filters';
+          if (subheading) subheading.textContent = 'Control which filters appear across the platform.';
+        }
       }
       
+      // Add active class to clicked tab
+      if (event && event.target) {
+        event.target.classList.add('active');
+      }
+    }
+
+    function switchLanguage(lang) {
+      document.querySelectorAll('.lang-btn').forEach(btn => {
+        btn.classList.remove('active');
+      });
+      if (event && event.target) {
+        event.target.classList.add('active');
+      }
+      localStorage.setItem('preferredLanguage', lang);
+      document.documentElement.lang = lang;
+    }
+
+    // Admin filter state
+    let adminFilters = {
+      profileTypes: [],
+      languages: [],
+      groups: [],
+      search: ''
+    };
+    let pendingProfilesCache = [];
+    let acceptedProfilesCache = [];
+
+    async function fetchJson(url, options) {
+      const response = await fetch(url, options);
+      if (!response.ok) {
+        throw new Error(`Request failed: ${response.status}`);
+      }
+      return response.json();
+    }
+
+    async function refreshAdminData() {
+      try {
+        pendingProfilesCache = await fetchJson('/api/pending-profiles');
+        acceptedProfilesCache = await fetchJson('/api/accepted-profiles');
+        await loadFilterOptions();
+        displayPendingProfiles();
+        displayProfiles();
+        await displayFilterOptions();
+      } catch (error) {
+        console.error('Failed to refresh admin data:', error);
+        const pendingList = document.getElementById('pending-profile-list');
+        if (pendingList) {
+          pendingList.innerHTML = '<div class="empty-state"><p>Unable to load pending profiles.</p></div>';
+        }
+        const profileList = document.getElementById('profile-list');
+        if (profileList) {
+          profileList.innerHTML = '<div class="empty-state"><p>Unable to load profiles.</p></div>';
+        }
+      }
+    }
+    
+    // Count profiles with specific tag
+    function countProfilesWithTag(tagValue, tagType) {
+      const profiles = acceptedProfilesCache || [];
+      let count = 0;
+
+      profiles.forEach(profile => {
+        if (tagType === 'group') {
+          ['en', 'es'].forEach(lang => {
+            if (profile.profiles[lang]) {
+              if (profile.profiles[lang].section === tagValue || profile.profiles[lang].team === tagValue) {
+                count++;
+              }
+            }
+          });
+        }
+
+        if (tagType === 'language') {
+          if (profile.profiles[tagValue]) {
+            count++;
+          }
+        }
+
+        if (tagType === 'profileType') {
+          if (tagValue === 'real-life') {
+            if (profile.profiles.en?.full_name || profile.profiles.es?.full_name) {
+              count++;
+            }
+          }
+          if (tagValue === 'alter-ego') {
+            if (profile.profiles.en?.alter_ego_name || profile.profiles.es?.alter_ego_name) {
+              count++;
+            }
+          }
+        }
+      });
+
+      return count;
+    }
+
+    let filterOptionsCache = {
+      profileTypes: [
+        { value: 'real-life', label: 'Us In Real Life' },
+        { value: 'alter-ego', label: 'Our Alter Egos' }
+      ],
+      languages: [
+        { value: 'en', label: 'English' },
+        { value: 'es', label: 'Spanish' }
+      ],
+      groups: []
+    };
+
+    // Load filter options from MongoDB
+    async function loadFilterOptions() {
+      try {
+        const data = await fetchJson('/api/filter-options');
+        filterOptionsCache = {
+          profileTypes: data.profileTypes || filterOptionsCache.profileTypes,
+          languages: data.languages || filterOptionsCache.languages,
+          groups: data.groups || []
+        };
+      } catch (error) {
+        console.warn('Failed to load filter options:', error);
+      }
+      return filterOptionsCache;
+    }
+
+    // Save filter options to MongoDB
+    async function saveFilterOptions(options) {
+      filterOptionsCache = options;
+      await fetchJson('/api/filter-options', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(options)
+      });
+    }
+
+    function normalizeProfileType(value) {
+      const lower = value.toLowerCase();
+      if (lower.includes('real')) return { value: 'real-life', label: 'Us In Real Life' };
+      if (lower.includes('alter')) return { value: 'alter-ego', label: 'Our Alter Egos' };
+      const slug = lower.replace(/\s+/g, '-');
+      return { value: slug, label: value };
+    }
+
+    function normalizeLanguage(value) {
+      const lower = value.toLowerCase();
+      if (lower === 'en' || lower.includes('english')) return { value: 'en', label: 'English' };
+      if (lower === 'es' || lower.includes('spanish')) return { value: 'es', label: 'Spanish' };
+      const slug = lower.replace(/\s+/g, '-');
+      return { value: slug, label: value };
+    }
+
+    // Display filter options with profile counts
+    async function displayFilterOptions() {
+      const { profileTypes, languages, groups } = await loadFilterOptions();
+
+      const profileTypeList = document.getElementById('profile-type-tags-list');
+      const groupList = document.getElementById('group-tags-list');
+      const languageList = document.getElementById('language-tags-list');
+
+      if (profileTypeList) {
+        profileTypeList.innerHTML = '';
+        if (profileTypes.length === 0) {
+          profileTypeList.innerHTML = '<p style="color: #999; font-style: italic; padding: 1rem;">No profile types added yet</p>';
+        } else {
+          profileTypes.forEach(type => {
+            const value = typeof type === 'string' ? type : type.value;
+            const label = typeof type === 'string' ? type : (type.label || type.value);
+            const count = countProfilesWithTag(value, 'profileType');
+            const tag = document.createElement('div');
+            tag.className = 'admin-filter-tag';
+            tag.innerHTML = `
+              <div class="tag-content">
+                <span class="tag-name">${label}</span>
+                <span class="tag-count">${count} profile${count !== 1 ? 's' : ''}</span>
+              </div>
+              <button class="tag-delete-btn" onclick="confirmRemoveFilterOption('profileType', '${value.replace(/'/g, "\\'")}', ${count})">×</button>
+            `;
+            profileTypeList.appendChild(tag);
+          });
+        }
+      }
+
+      if (groupList) {
+        groupList.innerHTML = '';
+        if (groups.length === 0) {
+          groupList.innerHTML = '<p style="color: #999; font-style: italic; padding: 1rem;">No groups added yet</p>';
+        } else {
+          groups.forEach(group => {
+            const count = countProfilesWithTag(group, 'group');
+            const tag = document.createElement('div');
+            tag.className = 'admin-filter-tag';
+            tag.innerHTML = `
+              <div class="tag-content">
+                <span class="tag-name">${group}</span>
+                <span class="tag-count">${count} profile${count !== 1 ? 's' : ''}</span>
+              </div>
+              <button class="tag-delete-btn" onclick="confirmRemoveFilterOption('group', '${group.replace(/'/g, "\\'")}', ${count})">×</button>
+            `;
+            groupList.appendChild(tag);
+          });
+        }
+      }
+
+      if (languageList) {
+        languageList.innerHTML = '';
+        if (languages.length === 0) {
+          languageList.innerHTML = '<p style="color: #999; font-style: italic; padding: 1rem;">No languages added yet</p>';
+        } else {
+          languages.forEach(lang => {
+            const value = typeof lang === 'string' ? lang : lang.value;
+            const label = typeof lang === 'string' ? lang : (lang.label || lang.value);
+            const count = countProfilesWithTag(value, 'language');
+            const tag = document.createElement('div');
+            tag.className = 'admin-filter-tag';
+            tag.innerHTML = `
+              <div class="tag-content">
+                <span class="tag-name">${label}</span>
+                <span class="tag-count">${count} profile${count !== 1 ? 's' : ''}</span>
+              </div>
+              <button class="tag-delete-btn" onclick="confirmRemoveFilterOption('language', '${value.replace(/'/g, "\\'")}', ${count})">×</button>
+            `;
+            languageList.appendChild(tag);
+          });
+        }
+      }
+    }
+
+    // Add filter option
+    window.addFilterOption = async function() {
+      const category = document.getElementById('new-filter-category').value;
+      const input = document.getElementById('new-filter-value');
+      const value = input.value.trim();
+      if (!value) return;
+
+      const options = loadFilterOptions();
+
+      if (category === 'groups') {
+        if (!options.groups.includes(value)) {
+          options.groups.push(value);
+          options.groups.sort();
+        } else {
+          alert('This group already exists!');
+          return;
+        }
+      }
+
+      if (category === 'profileTypes') {
+        const normalized = normalizeProfileType(value);
+        const exists = options.profileTypes.some(t => (t.value || t) === normalized.value);
+        if (!exists) {
+          options.profileTypes.push(normalized);
+        } else {
+          alert('This profile type already exists!');
+          return;
+        }
+      }
+
+      if (category === 'languages') {
+        const normalized = normalizeLanguage(value);
+        const exists = options.languages.some(t => (t.value || t) === normalized.value);
+        if (!exists) {
+          options.languages.push(normalized);
+        } else {
+          alert('This language already exists!');
+          return;
+        }
+      }
+
+      await saveFilterOptions(options);
+      input.value = '';
+      await displayFilterOptions();
+      initializeAdminFilters();
+    };
+
+    // Confirm and remove filter option
+    window.confirmRemoveFilterOption = function(type, value, profileCount) {
+      const label = type === 'group' ? 'group' : (type === 'language' ? 'language' : 'profile type');
+      let message = `Are you sure you want to delete the ${label} "${value}"?\n\n`;
+
+      if (profileCount > 0) {
+        message += `⚠️ WARNING: This ${label} is currently used by ${profileCount} profile${profileCount !== 1 ? 's' : ''}.\n\n`;
+        message += `Deleting this ${label} will NOT delete the profiles, but they will no longer be filterable by this ${label}.`;
+      } else {
+        message += `This ${label} is not currently used by any profiles.`;
+      }
+
+      if (confirm(message)) {
+        removeFilterOption(type, value);
+      }
+    };
+
+    // Remove filter option
+    async function removeFilterOption(type, value) {
+      const options = await loadFilterOptions();
+
+      if (type === 'group') {
+        options.groups = options.groups.filter(g => g !== value);
+      }
+
+      if (type === 'profileType') {
+        options.profileTypes = options.profileTypes.filter(t => (t.value || t) !== value);
+      }
+
+      if (type === 'language') {
+        options.languages = options.languages.filter(t => (t.value || t) !== value);
+      }
+
+      await saveFilterOptions(options);
+      await displayFilterOptions();
+      initializeAdminFilters();
+    }
+
+    // Load submitted profiles
+    function loadSubmittedProfiles() {
+      return acceptedProfilesCache || [];
+    }
+
+    function findProfileById(list, id) {
+      return (list || []).find(profile => profile._id === id);
+    }
+
+    function displayPendingProfiles() {
+      const container = document.getElementById('pending-profile-list');
+      if (!container) return;
+
+      if (!pendingProfilesCache || pendingProfilesCache.length === 0) {
+        container.innerHTML = `
+          <div class="empty-state">
+            <p>No pending profiles at the moment.</p>
+            <p style="font-size: 0.9rem; margin-top: 0.5rem;">When students submit profiles, they will appear here for review.</p>
+          </div>
+        `;
+        return;
+      }
+
       container.innerHTML = '';
-      profiles.forEach((profile, index) => {
+      pendingProfilesCache.forEach(profile => {
         const name = profile.profiles.en?.full_name || profile.profiles.es?.full_name || 'Unknown';
         const date = new Date(profile.timestamp).toLocaleString();
         const languages = [];
         if (profile.profiles.en) languages.push('English');
         if (profile.profiles.es) languages.push('Spanish');
-        
+
         const div = document.createElement('div');
         div.className = 'profile-item';
         div.innerHTML = `
@@ -194,38 +674,192 @@
           <p><strong>Submitted:</strong> ${date}</p>
           <p><strong>Languages:</strong> ${languages.join(', ')}</p>
           <div class="profile-actions">
-            <button class="btn btn-secondary btn-small" onclick="viewProfile(${index})">View JSON</button>
-            <button class="btn btn-primary btn-small" onclick="downloadProfile(${index})">Download JSON</button>
-            <button class="btn btn-danger btn-small" onclick="deleteProfile(${index})">Delete</button>
+            <button class="btn btn-secondary btn-small" onclick="viewPendingProfile('${profile._id}')">👁️ View</button>
+            <button class="btn btn-primary btn-small" onclick="approvePendingProfile('${profile._id}')">✅ Accept</button>
+            <button class="btn btn-danger btn-small" onclick="rejectPendingProfile('${profile._id}')">🗑️ Reject</button>
           </div>
         `;
         container.appendChild(div);
       });
     }
 
-    // View profile JSON
-    window.viewProfile = function(index) {
+    // Display profiles
+    function displayProfiles() {
       const profiles = loadSubmittedProfiles();
-      const profile = profiles[index];
-      const jsonString = JSON.stringify(profile, null, 2);
-      
+      const container = document.getElementById('profile-list');
+      const statsContainer = document.getElementById('stats');
+      const filteredProfiles = filterAdminProfiles(profiles);
+
+      updateAdminResultsSummary(filteredProfiles.length);
+
+      const englishCount = filteredProfiles.filter(profile => profile.profiles.en).length;
+      const spanishCount = filteredProfiles.filter(profile => profile.profiles.es).length;
+
+      // Update stats
+      statsContainer.innerHTML = `
+        <div class="stat-item">
+          <strong>${filteredProfiles.length}</strong>
+          <span>Total Showing</span>
+        </div>
+        <div class="stat-item">
+          <strong>${englishCount}</strong>
+          <span>English Profiles</span>
+        </div>
+        <div class="stat-item">
+          <strong>${spanishCount}</strong>
+          <span>Spanish Profiles</span>
+        </div>
+      `;
+
+      if (filteredProfiles.length === 0) {
+        container.innerHTML = '<div class="empty-state"><p>No profiles match your filters.</p></div>';
+        updateSelectionCount();
+        return;
+      }
+
+      container.innerHTML = '';
+      filteredProfiles.forEach(profile => {
+        const name = profile.profiles.en?.full_name || profile.profiles.es?.full_name || 'Unknown';
+        const date = new Date(profile.timestamp).toLocaleString();
+        const languages = [];
+        if (profile.profiles.en) languages.push('English');
+        if (profile.profiles.es) languages.push('Spanish');
+
+        const div = document.createElement('div');
+        div.className = 'profile-item';
+        div.innerHTML = `
+          <div style="display: flex; align-items: start; gap: 1rem;">
+            <input type="checkbox" class="profile-checkbox" data-id="${profile._id}" onchange="updateSelectionCount()" style="margin-top: 0.25rem; width: 18px; height: 18px; cursor: pointer;">
+            <div style="flex: 1;">
+              <h3>${name}</h3>
+              <p><strong>Submitted:</strong> ${date}</p>
+              <p><strong>Languages:</strong> ${languages.join(', ')}</p>
+              <div class="profile-actions">
+                <button class="btn btn-secondary btn-small" onclick="viewProfile('${profile._id}')">👁️ View</button>
+                <button class="btn btn-primary btn-small" onclick="editProfile('${profile._id}')">✏️ Edit</button>
+                <button class="btn btn-secondary btn-small" onclick="exportSingleProfile('${profile._id}')">📥 Export</button>
+                <button class="btn btn-secondary btn-small" onclick="moveToPending('${profile._id}')">⏸️ Move to Pending</button>
+                <button class="btn btn-danger btn-small" onclick="deleteProfile('${profile._id}')">🗑️ Delete</button>
+              </div>
+            </div>
+          </div>
+        `;
+        container.appendChild(div);
+      });
+
+      updateSelectionCount();
+    }
+
+    function updateAdminResultsSummary(count) {
+      const resultsCount = document.getElementById('admin-results-count');
+      if (resultsCount) {
+        resultsCount.textContent = count;
+      }
+    }
+
+    function escapeHtml(value) {
+      if (value === null || value === undefined) return '';
+      return String(value)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
+    function renderProfileModal(profile, titleText) {
+      const en = profile.profiles.en || null;
+      const es = profile.profiles.es || null;
+
+      const renderLanguageBlock = (langLabel, data) => {
+        if (!data) return '';
+        return `
+          <section style="border: 1px solid #e6e6e6; border-radius: 10px; padding: 1.5rem; margin-bottom: 1.5rem; background: #fafafa;">
+            <h3 style="margin: 0 0 1rem; color: #2b7bb9;">${langLabel}</h3>
+            <div style="display: grid; grid-template-columns: 140px 1fr; gap: 1rem; align-items: start;">
+              <div>
+                <div style="font-weight: 600; margin-bottom: 0.5rem;">Photo</div>
+                ${data.photo_url ? `<img src="${data.photo_url}" alt="${escapeHtml(data.photo_alt || data.full_name || '')}" style="width: 140px; height: 140px; object-fit: cover; border-radius: 10px; border: 1px solid #ddd;">` : '<div style="width: 140px; height: 140px; border-radius: 10px; background: #eee; display: flex; align-items: center; justify-content: center; color: #999;">No image</div>'}
+                ${data.pronunciation_url ? `
+                  <div style="margin-top: 0.75rem;">
+                    <div style="font-weight: 600; margin-bottom: 0.35rem;">Pronunciation</div>
+                    <audio controls src="${data.pronunciation_url}" style="width: 140px;"></audio>
+                  </div>
+                ` : ''}
+              </div>
+              <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.75rem 1.25rem;">
+                <div><strong>Full name:</strong><br>${escapeHtml(data.full_name)}</div>
+                <div><strong>Preferred name:</strong><br>${escapeHtml(data.preferred_name)}</div>
+                <div><strong>Pronouns:</strong><br>${escapeHtml(data.pronouns)}</div>
+                <div><strong>Languages:</strong><br>${escapeHtml(data.languages)}</div>
+                <div><strong>Course:</strong><br>${escapeHtml(data.course)}</div>
+                <div><strong>Section:</strong><br>${escapeHtml(data.section)}</div>
+                <div><strong>Enrollment reason:</strong><br>${escapeHtml(data.enrollment_reason)}</div>
+                <div><strong>Goals:</strong><br>${escapeHtml(data.goals)}</div>
+                <div style="grid-column: 1 / -1;"><strong>Social media:</strong><br>${escapeHtml(data.social_media)}</div>
+                <div style="grid-column: 1 / -1;"><strong>About:</strong><br>${escapeHtml(data.about)}</div>
+                <div style="grid-column: 1 / -1;"><strong>Previous experience:</strong><br>${escapeHtml(data.previous_experience)}</div>
+              </div>
+            </div>
+
+            <div style="margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid #e6e6e6;">
+              <h4 style="margin: 0 0 0.75rem; color: #2b7bb9;">Alter Ego</h4>
+              <div style="display: grid; grid-template-columns: 140px 1fr; gap: 1rem; align-items: start;">
+                <div>
+                  <div style="font-weight: 600; margin-bottom: 0.5rem;">Alter Ego Photo</div>
+                  ${data.alter_ego_photo_url ? `<img src="${data.alter_ego_photo_url}" alt="${escapeHtml(data.alter_ego_alt || data.alter_ego_name || '')}" style="width: 140px; height: 140px; object-fit: cover; border-radius: 10px; border: 1px solid #ddd;">` : '<div style="width: 140px; height: 140px; border-radius: 10px; background: #eee; display: flex; align-items: center; justify-content: center; color: #999;">No image</div>'}
+                </div>
+                <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.75rem 1.25rem;">
+                  <div><strong>Name:</strong><br>${escapeHtml(data.alter_ego_name)}</div>
+                  <div><strong>Job title:</strong><br>${escapeHtml(data.alter_ego_job)}</div>
+                  <div><strong>Organization:</strong><br>${escapeHtml(data.alter_ego_org)}</div>
+                  <div><strong>Photo credits:</strong><br>${escapeHtml(data.alter_ego_credits)}</div>
+                  <div><strong>Subject fields:</strong><br>${escapeHtml(data.subject_fields)}</div>
+                  <div><strong>Hobbies:</strong><br>${escapeHtml(data.hobbies)}</div>
+                  <div style="grid-column: 1 / -1;"><strong>About:</strong><br>${escapeHtml(data.alter_ego_about)}</div>
+                </div>
+              </div>
+            </div>
+          </section>
+        `;
+      };
+
       const modal = document.createElement('div');
       modal.style.cssText = 'position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); display: flex; align-items: center; justify-content: center; z-index: 1000; padding: 2rem;';
       modal.innerHTML = `
-        <div style="background: white; padding: 2rem; border-radius: 8px; max-width: 800px; max-height: 80vh; overflow: auto;">
-          <h3 style="margin-bottom: 1rem;">Profile JSON</h3>
-          <pre>${jsonString}</pre>
-          <button class="btn btn-primary" onclick="this.closest('div').parentElement.remove()">Close</button>
+        <div style="background: white; padding: 2rem; border-radius: 12px; max-width: 980px; width: 100%; max-height: 85vh; overflow: auto;">
+          <div style="display: flex; justify-content: space-between; align-items: center; gap: 1rem; margin-bottom: 1.5rem;">
+            <div>
+              <h2 style="margin: 0 0 0.35rem;">${escapeHtml(titleText)}</h2>
+              <div style="color: #666;">Submitted: ${escapeHtml(new Date(profile.timestamp).toLocaleString())}</div>
+            </div>
+            <button class="btn btn-secondary" onclick="this.closest('div').parentElement.parentElement.remove()">Close</button>
+          </div>
+          ${renderLanguageBlock('English Profile', en)}
+          ${renderLanguageBlock('Spanish Profile', es)}
         </div>
       `;
       document.body.appendChild(modal);
       modal.onclick = (e) => { if (e.target === modal) modal.remove(); };
+    }
+
+    // View profile JSON
+    window.viewProfile = function(id) {
+      const profile = findProfileById(acceptedProfilesCache, id);
+      if (!profile) return;
+      renderProfileModal(profile, 'Accepted Profile');
+    };
+
+    window.viewPendingProfile = function(id) {
+      const profile = findProfileById(pendingProfilesCache, id);
+      if (!profile) return;
+      renderProfileModal(profile, 'Pending Profile');
     };
 
     // Download single profile
-    window.downloadProfile = function(index) {
-      const profiles = loadSubmittedProfiles();
-      const profile = profiles[index];
+    window.downloadProfile = function(id) {
+      const profile = findProfileById(acceptedProfilesCache, id);
+      if (!profile) return;
       const name = (profile.profiles.en?.full_name || profile.profiles.es?.full_name || 'profile').replace(/[^a-zA-Z0-9]/g, '_');
       const timestamp = new Date(profile.timestamp).toISOString().replace(/[:.]/g, '-').split('T')[0];
       const filename = `${name}_${timestamp}.json`;
@@ -243,14 +877,384 @@
     };
 
     // Delete profile
-    window.deleteProfile = function(index) {
+    window.deleteProfile = async function(id) {
       if (!confirm('Are you sure you want to delete this profile?')) return;
-      
-      const profiles = loadSubmittedProfiles();
-      profiles.splice(index, 1);
-      localStorage.setItem('submittedProfiles', JSON.stringify(profiles));
-      displayProfiles();
+
+      try {
+        await fetchJson(`/api/accepted-profiles/${id}`, { method: 'DELETE' });
+        await refreshAdminData();
+      } catch (error) {
+        console.error('Failed to delete profile:', error);
+        alert('Unable to delete profile.');
+      }
     };
+
+    // Edit profile
+    window.editProfile = function(id) {
+      alert('Edit functionality will open a form to modify this profile. This feature is coming soon!');
+      // TODO: Implement edit modal/form
+    };
+
+    // Export single profile
+    window.exportSingleProfile = function(id) {
+      const profile = findProfileById(acceptedProfilesCache, id);
+      if (!profile) return;
+      const name = (profile.profiles.en?.full_name || profile.profiles.es?.full_name || 'profile').replace(/[^a-zA-Z0-9]/g, '_');
+      const timestamp = new Date(profile.timestamp).toISOString().replace(/[:.]/g, '-').split('T')[0];
+      const filename = `${name}_${timestamp}.json`;
+      
+      const jsonString = JSON.stringify(profile, null, 2);
+      const blob = new Blob([jsonString], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    };
+
+    // Move profile to pending
+    window.moveToPending = async function(id) {
+      if (!confirm('Move this profile back to pending?')) return;
+
+      try {
+        await fetchJson(`/api/accepted-profiles/${id}/move-to-pending`, { method: 'POST' });
+        await refreshAdminData();
+      } catch (error) {
+        console.error('Failed to move profile to pending:', error);
+        alert('Unable to move profile to pending.');
+      }
+    };
+
+    window.approvePendingProfile = async function(id) {
+      if (!confirm('Accept this profile?')) return;
+
+      try {
+        await fetchJson(`/api/pending-profiles/${id}/accept`, { method: 'POST' });
+        await refreshAdminData();
+      } catch (error) {
+        console.error('Failed to accept profile:', error);
+        alert('Unable to accept profile.');
+      }
+    };
+
+    window.rejectPendingProfile = async function(id) {
+      if (!confirm('Reject and delete this profile?')) return;
+
+      try {
+        await fetchJson(`/api/pending-profiles/${id}`, { method: 'DELETE' });
+        await refreshAdminData();
+      } catch (error) {
+        console.error('Failed to reject profile:', error);
+        alert('Unable to reject profile.');
+      }
+    };
+
+    // Selection management
+    window.updateSelectionCount = function() {
+      const checkboxes = document.querySelectorAll('.profile-checkbox:checked');
+      const count = checkboxes.length;
+      document.getElementById('selection-count').textContent = `${count} selected`;
+      document.getElementById('export-selected-btn').disabled = count === 0;
+    };
+
+    window.selectAllProfiles = function() {
+      const checkboxes = document.querySelectorAll('.profile-checkbox');
+      checkboxes.forEach(cb => cb.checked = true);
+      updateSelectionCount();
+    };
+
+    window.clearProfileSelection = function() {
+      const checkboxes = document.querySelectorAll('.profile-checkbox');
+      checkboxes.forEach(cb => cb.checked = false);
+      updateSelectionCount();
+    };
+
+    window.toggleExportSection = function() {
+      const section = document.getElementById('export-section');
+      const button = document.getElementById('toggle-export-btn');
+      if (!section || !button) return;
+      const isHidden = section.style.display === 'none' || section.style.display === '';
+      section.style.display = isHidden ? 'block' : 'none';
+      button.textContent = isHidden ? 'Hide Export Tools' : 'Show Export Tools';
+    };
+
+    // Export selected profiles
+    window.exportSelectedProfiles = async function() {
+      const checkboxes = document.querySelectorAll('.profile-checkbox:checked');
+      if (checkboxes.length === 0) {
+        alert('No profiles selected.');
+        return;
+      }
+
+      const selectedIds = Array.from(checkboxes).map(cb => cb.dataset.id);
+      const selectedProfiles = selectedIds
+        .map(id => findProfileById(acceptedProfilesCache, id))
+        .filter(Boolean);
+
+      const progressContainer = document.getElementById('export-progress');
+      const progressBar = document.getElementById('progress-bar');
+      const progressText = document.getElementById('progress-text');
+
+      progressContainer.style.display = 'block';
+      progressText.textContent = 'Preparing export...';
+
+      try {
+        const zip = new JSZip();
+        const timestamp = new Date().toISOString().replace(/[:.]/g, '-').split('T')[0];
+
+        let filesProcessed = 0;
+        const totalFiles = selectedProfiles.length * 3;
+
+        for (const profile of selectedProfiles) {
+          const name = (profile.profiles.en?.full_name || profile.profiles.es?.full_name || 'profile').replace(/[^a-zA-Z0-9]/g, '_');
+
+          zip.file(`${name}.json`, JSON.stringify(profile, null, 2));
+          filesProcessed++;
+          progressBar.style.width = `${(filesProcessed / totalFiles) * 100}%`;
+          progressText.textContent = `Processing ${name}...`;
+
+          for (const lang of ['en', 'es']) {
+            const profileData = profile.profiles[lang];
+            if (!profileData) continue;
+
+            if (profileData.photo_url) {
+              const photoBase64 = profileData.photo_url.split(',')[1];
+              if (photoBase64) {
+                zip.file(`images/${name}_${lang}_profile.jpg`, photoBase64, { base64: true });
+              }
+            }
+
+            if (profileData.alter_ego_photo_url) {
+              const alterBase64 = profileData.alter_ego_photo_url.split(',')[1];
+              if (alterBase64) {
+                zip.file(`images/${name}_${lang}_alter_ego.jpg`, alterBase64, { base64: true });
+              }
+            }
+
+            if (profileData.pronunciation_url) {
+              const audioBase64 = profileData.pronunciation_url.split(',')[1];
+              if (audioBase64) {
+                zip.file(`audio/${name}_${lang}_pronunciation.mp3`, audioBase64, { base64: true });
+              }
+            }
+          }
+
+          filesProcessed++;
+          progressBar.style.width = `${(filesProcessed / totalFiles) * 100}%`;
+        }
+
+        progressText.textContent = 'Creating ZIP file...';
+        progressBar.style.width = '90%';
+
+        const content = await zip.generateAsync({ type: 'blob' });
+
+        progressText.textContent = 'Download starting...';
+        progressBar.style.width = '100%';
+
+        const url = URL.createObjectURL(content);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `selected_profiles_${timestamp}.zip`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+
+        setTimeout(() => {
+          progressContainer.style.display = 'none';
+          progressBar.style.width = '0%';
+        }, 2000);
+
+      } catch (error) {
+        console.error('Export error:', error);
+        alert('Error creating export: ' + error.message);
+        progressContainer.style.display = 'none';
+      }
+    };
+
+    // Admin filter functions
+    window.toggleAdminFilterPanel = function() {
+      const panel = document.getElementById('admin-filter-panel');
+      if (!panel) return;
+      panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+    };
+
+    window.clearAdminSearch = function() {
+      const input = document.getElementById('admin-search-input');
+      if (input) input.value = '';
+      adminFilters.search = '';
+      applyAdminFilters();
+    };
+
+    window.clearAdminFilterSearch = function() {
+      const input = document.getElementById('admin-filter-search-input');
+      if (input) input.value = '';
+      const labels = document.querySelectorAll('#admin-filter-panel .filter-checkbox-label');
+      labels.forEach(label => label.style.display = '');
+    };
+
+    window.applyAdminFilters = function() {
+      const profileTypeCheckboxes = document.querySelectorAll('#admin-filter-panel .filter-options-checkboxes input[value="real-life"], #admin-filter-panel .filter-options-checkboxes input[value="alter-ego"]');
+      adminFilters.profileTypes = Array.from(profileTypeCheckboxes).filter(cb => cb.checked).map(cb => cb.value);
+
+      const languageCheckboxes = document.querySelectorAll('#admin-language-checkboxes input');
+      adminFilters.languages = Array.from(languageCheckboxes).filter(cb => cb.checked).map(cb => cb.value);
+
+      const groupCheckboxes = document.querySelectorAll('#admin-group-checkboxes input');
+      adminFilters.groups = Array.from(groupCheckboxes).filter(cb => cb.checked).map(cb => cb.value);
+
+      const searchInput = document.getElementById('admin-search-input');
+      adminFilters.search = searchInput ? searchInput.value.toLowerCase().trim() : '';
+
+      displayProfiles();
+      updateAdminActiveFilterTags();
+    };
+
+    window.clearAdminFilters = function() {
+      adminFilters = {
+        profileTypes: [],
+        languages: [],
+        groups: [],
+        search: ''
+      };
+
+      document.querySelectorAll('#admin-filter-panel input[type="checkbox"]').forEach(cb => {
+        cb.checked = false;
+        const label = cb.closest('.filter-checkbox-label');
+        if (label) label.classList.remove('is-checked');
+      });
+
+      const searchInput = document.getElementById('admin-search-input');
+      if (searchInput) searchInput.value = '';
+
+      displayProfiles();
+      updateAdminActiveFilterTags();
+    };
+
+    function updateAdminActiveFilterTags() {
+      const container = document.getElementById('admin-active-filters');
+      if (!container) return;
+      container.innerHTML = '';
+      let hasActiveFilters = false;
+
+      adminFilters.profileTypes.forEach(type => {
+        hasActiveFilters = true;
+        const label = getAdminProfileTypeLabel(type);
+        container.appendChild(createAdminFilterTag(label, 'profileType', type));
+      });
+
+      adminFilters.languages.forEach(lang => {
+        hasActiveFilters = true;
+        const label = getAdminLanguageLabel(lang);
+        container.appendChild(createAdminFilterTag(label, 'language', lang));
+      });
+
+      adminFilters.groups.forEach(group => {
+        hasActiveFilters = true;
+        container.appendChild(createAdminFilterTag(group, 'group', group));
+      });
+
+      container.style.display = hasActiveFilters ? 'flex' : 'none';
+    }
+
+    function createAdminFilterTag(label, type, value) {
+      const tag = document.createElement('div');
+      tag.className = 'active-filter-tag';
+      tag.innerHTML = `
+        <span>${label}</span>
+        <button onclick="removeAdminFilter('${type}', '${value}')">×</button>
+      `;
+      return tag;
+    }
+
+    function getAdminProfileTypeLabel(value) {
+      const match = (filterOptionsCache.profileTypes || []).find(t => (t.value || t) === value);
+      if (match && typeof match === 'object') return match.label || match.value;
+      if (value === 'real-life') return 'Us In Real Life';
+      if (value === 'alter-ego') return 'Our Alter Egos';
+      return value;
+    }
+
+    function getAdminLanguageLabel(value) {
+      const match = (filterOptionsCache.languages || []).find(t => (t.value || t) === value);
+      if (match && typeof match === 'object') return match.label || match.value;
+      if (value === 'en') return 'English';
+      if (value === 'es') return 'Spanish';
+      return value;
+    }
+
+    window.removeAdminFilter = function(type, value) {
+      if (type === 'profileType') {
+        adminFilters.profileTypes = adminFilters.profileTypes.filter(t => t !== value);
+        const checkbox = document.querySelector(`#admin-filter-panel input[value="${value}"]`);
+        if (checkbox) checkbox.checked = false;
+      } else if (type === 'language') {
+        adminFilters.languages = adminFilters.languages.filter(l => l !== value);
+        const checkbox = document.querySelector(`#admin-language-checkboxes input[value="${value}"]`);
+        if (checkbox) checkbox.checked = false;
+      } else if (type === 'group') {
+        adminFilters.groups = adminFilters.groups.filter(g => g !== value);
+        const checkbox = document.querySelector(`#admin-group-checkboxes input[value="${value}"]`);
+        if (checkbox) checkbox.checked = false;
+      }
+
+      displayProfiles();
+      updateAdminActiveFilterTags();
+    };
+
+    function filterAdminProfiles(profiles) {
+      const filtered = profiles
+        .filter(profile => {
+          const hasLangMatch = adminFilters.languages.length === 0 || adminFilters.languages.some(lang => profile.profiles[lang]);
+          if (!hasLangMatch) return false;
+
+          if (adminFilters.groups.length > 0) {
+            const hasGroupMatch = adminFilters.groups.some(group => {
+              const en = profile.profiles.en || {};
+              const es = profile.profiles.es || {};
+              return en.section === group || en.team === group || es.section === group || es.team === group;
+            });
+            if (!hasGroupMatch) return false;
+          }
+
+          if (adminFilters.profileTypes.length > 0) {
+            const hasRealLife = Boolean(profile.profiles.en?.full_name || profile.profiles.es?.full_name);
+            const hasAlterEgo = Boolean(profile.profiles.en?.alter_ego_name || profile.profiles.es?.alter_ego_name);
+            const wantsRealLife = adminFilters.profileTypes.includes('real-life');
+            const wantsAlterEgo = adminFilters.profileTypes.includes('alter-ego');
+            if (wantsRealLife && hasRealLife) return true;
+            if (wantsAlterEgo && hasAlterEgo) return true;
+            return false;
+          }
+
+          if (adminFilters.search) {
+            const term = adminFilters.search;
+            const fields = [
+              profile.profiles.en?.full_name,
+              profile.profiles.en?.preferred_name,
+              profile.profiles.en?.alter_ego_name,
+              profile.profiles.es?.full_name,
+              profile.profiles.es?.preferred_name,
+              profile.profiles.es?.alter_ego_name
+            ]
+              .filter(Boolean)
+              .map(text => text.toLowerCase());
+            const hasMatch = fields.some(text => text.includes(term));
+            if (!hasMatch) return false;
+          }
+
+          return true;
+        });
+
+      return filtered.sort((a, b) => {
+        const nameA = (a.profiles.en?.full_name || a.profiles.es?.full_name || '').toLowerCase();
+        const nameB = (b.profiles.en?.full_name || b.profiles.es?.full_name || '').toLowerCase();
+        return nameA.localeCompare(nameB);
+      });
+    }
 
     // Export all as individual JSON files (creates multiple downloads)
     window.exportAllAsZip = function() {
@@ -280,17 +1284,17 @@
         const addedFiles = new Set();
         let filesProcessed = 0;
         let totalFiles = profiles.length;
-        
+
         // First pass: count total files (JSON + images + audio)
         profiles.forEach(profile => {
-          if (profile.profiles.en?.photo) totalFiles++;
-          if (profile.profiles.en?.pronunciation_file) totalFiles++;
-          if (profile.profiles.en?.alter_ego?.photo) totalFiles++;
-          if (profile.profiles.es?.photo) totalFiles++;
-          if (profile.profiles.es?.pronunciation_file) totalFiles++;
-          if (profile.profiles.es?.alter_ego?.photo) totalFiles++;
+          if (profile.profiles.en?.photo_url) totalFiles++;
+          if (profile.profiles.en?.pronunciation_url) totalFiles++;
+          if (profile.profiles.en?.alter_ego_photo_url) totalFiles++;
+          if (profile.profiles.es?.photo_url) totalFiles++;
+          if (profile.profiles.es?.pronunciation_url) totalFiles++;
+          if (profile.profiles.es?.alter_ego_photo_url) totalFiles++;
         });
-        
+
         // Add all JSON files
         progressText.textContent = 'Adding JSON files...';
         const jsonFolder = zip.folder('profiles');
@@ -302,59 +1306,46 @@
           filesProcessed++;
           progressBar.style.width = `${(filesProcessed / totalFiles) * 100}%`;
         });
-        
-        // Helper function to fetch and add file to zip
-        async function addFileToZip(url, folderName) {
-          if (!url || addedFiles.has(url)) return;
-          
-          try {
-            // Remove leading slash and get the file path
-            const filePath = url.startsWith('/') ? url.substring(1) : url;
-            const fileName = filePath.split('/').pop();
-            
-            const response = await fetch(url);
-            if (response.ok) {
-              const blob = await response.blob();
-              const folder = zip.folder(folderName);
-              folder.file(fileName, blob);
-              addedFiles.add(url);
-              filesProcessed++;
-              progressBar.style.width = `${(filesProcessed / totalFiles) * 100}%`;
-            }
-          } catch (error) {
-            console.warn(`Failed to fetch ${url}:`, error);
-          }
+
+        function addDataUrlToZip(dataUrl, filePath) {
+          if (!dataUrl || addedFiles.has(filePath)) return;
+          const base64 = dataUrl.split(',')[1];
+          if (!base64) return;
+          zip.file(filePath, base64, { base64: true });
+          addedFiles.add(filePath);
+          filesProcessed++;
+          progressBar.style.width = `${(filesProcessed / totalFiles) * 100}%`;
         }
-        
+
         // Add all images and audio files
         progressText.textContent = 'Adding images and audio files...';
-        for (const profile of profiles) {
-          // English profile files
+        profiles.forEach(profile => {
+          const name = (profile.profiles.en?.full_name || profile.profiles.es?.full_name || 'profile').replace(/[^a-zA-Z0-9]/g, '_');
+
           if (profile.profiles.en) {
-            if (profile.profiles.en.photo) {
-              await addFileToZip(profile.profiles.en.photo, 'images');
+            if (profile.profiles.en.photo_url) {
+              addDataUrlToZip(profile.profiles.en.photo_url, `images/${name}_en_profile.jpg`);
             }
-            if (profile.profiles.en.pronunciation_file) {
-              await addFileToZip(profile.profiles.en.pronunciation_file, 'audio');
+            if (profile.profiles.en.alter_ego_photo_url) {
+              addDataUrlToZip(profile.profiles.en.alter_ego_photo_url, `images/${name}_en_alter_ego.jpg`);
             }
-            if (profile.profiles.en.alter_ego?.photo) {
-              await addFileToZip(profile.profiles.en.alter_ego.photo, 'images');
+            if (profile.profiles.en.pronunciation_url) {
+              addDataUrlToZip(profile.profiles.en.pronunciation_url, `audio/${name}_en_pronunciation.mp3`);
             }
           }
-          
-          // Spanish profile files
+
           if (profile.profiles.es) {
-            if (profile.profiles.es.photo) {
-              await addFileToZip(profile.profiles.es.photo, 'images');
+            if (profile.profiles.es.photo_url) {
+              addDataUrlToZip(profile.profiles.es.photo_url, `images/${name}_es_profile.jpg`);
             }
-            if (profile.profiles.es.pronunciation_file) {
-              await addFileToZip(profile.profiles.es.pronunciation_file, 'audio');
+            if (profile.profiles.es.alter_ego_photo_url) {
+              addDataUrlToZip(profile.profiles.es.alter_ego_photo_url, `images/${name}_es_alter_ego.jpg`);
             }
-            if (profile.profiles.es.alter_ego?.photo) {
-              await addFileToZip(profile.profiles.es.alter_ego.photo, 'images');
+            if (profile.profiles.es.pronunciation_url) {
+              addDataUrlToZip(profile.profiles.es.pronunciation_url, `audio/${name}_es_pronunciation.mp3`);
             }
           }
-        }
+        });
         
         // Add a summary file
         const summary = {
@@ -362,7 +1353,7 @@
           total_profiles: profiles.length,
           profiles_with_english: profiles.filter(p => p.profiles.en).length,
           profiles_with_spanish: profiles.filter(p => p.profiles.es).length,
-          total_images: addedFiles.size,
+          total_images: Array.from(addedFiles).filter(f => f.includes('images')).length,
           files_included: {
             json_files: profiles.length,
             image_files: Array.from(addedFiles).filter(f => f.includes('images')).length,
@@ -431,20 +1422,129 @@
       URL.revokeObjectURL(url);
     };
 
-    // Clear all profiles
-    window.clearAllProfiles = function() {
-      if (!confirm('Are you sure you want to clear ALL submitted profiles? This cannot be undone!')) return;
-      
-      const confirmation = prompt('Type "DELETE ALL" to confirm:');
-      if (confirmation === 'DELETE ALL') {
-        localStorage.removeItem('submittedProfiles');
-        displayProfiles();
-        alert('All profiles have been cleared.');
-      }
-    };
-
     // Initialize on page load
-    document.addEventListener('DOMContentLoaded', displayProfiles);
+    document.addEventListener('DOMContentLoaded', async function() {
+      await refreshAdminData();
+      initializeAdminFilters();
+    });
+
+    // Initialize admin filter system
+    function initializeAdminFilters() {
+      // Add event listener for admin filter button
+      const adminFilterBtn = document.getElementById('admin-filter-btn');
+      if (adminFilterBtn) {
+        adminFilterBtn.addEventListener('click', function(event) {
+          event.stopPropagation();
+          toggleAdminFilterPanel();
+        });
+      }
+
+      // Populate filter options dynamically
+      const filterOptions = filterOptionsCache;
+
+      const profileTypeCheckboxes = document.getElementById('admin-profile-type-checkboxes');
+      if (profileTypeCheckboxes) {
+        profileTypeCheckboxes.innerHTML = '';
+        (filterOptions.profileTypes || []).forEach(type => {
+          const value = typeof type === 'string' ? type : type.value;
+          const labelText = typeof type === 'string' ? type : (type.label || type.value);
+          const label = document.createElement('label');
+          label.className = 'filter-checkbox-label';
+          label.innerHTML = `
+            <input type="checkbox" value="${value}" onchange="applyAdminFilters()">
+            <span>${labelText}</span>
+          `;
+          profileTypeCheckboxes.appendChild(label);
+        });
+      }
+
+      const groupCheckboxes = document.getElementById('admin-group-checkboxes');
+      if (groupCheckboxes) {
+        groupCheckboxes.innerHTML = '';
+        (filterOptions.groups || []).forEach(group => {
+          const label = document.createElement('label');
+          label.className = 'filter-checkbox-label';
+          label.innerHTML = `
+            <input type="checkbox" value="${group}" onchange="applyAdminFilters()">
+            <span>${group}</span>
+          `;
+          groupCheckboxes.appendChild(label);
+        });
+      }
+
+      const languageCheckboxes = document.getElementById('admin-language-checkboxes');
+      if (languageCheckboxes) {
+        languageCheckboxes.innerHTML = '';
+        (filterOptions.languages || []).forEach(lang => {
+          const value = typeof lang === 'string' ? lang : lang.value;
+          const labelText = typeof lang === 'string' ? lang : (lang.label || lang.value);
+          const label = document.createElement('label');
+          label.className = 'filter-checkbox-label';
+          label.innerHTML = `
+            <input type="checkbox" value="${value}" onchange="applyAdminFilters()">
+            <span>${labelText}</span>
+          `;
+          languageCheckboxes.appendChild(label);
+        });
+      }
+
+      // Close filter panel when clicking outside
+      document.addEventListener('click', function(event) {
+        const panel = document.getElementById('admin-filter-panel');
+        const btn = document.getElementById('admin-filter-btn');
+        if (panel && btn && !panel.contains(event.target) && !btn.contains(event.target)) {
+          panel.style.display = 'none';
+        }
+      });
+
+      // Filter search functionality
+      const filterSearchInput = document.getElementById('admin-filter-search-input');
+      if (filterSearchInput) {
+        filterSearchInput.addEventListener('input', function() {
+          const searchTerm = this.value.toLowerCase();
+          const labels = document.querySelectorAll('#admin-filter-panel .filter-checkbox-label');
+          labels.forEach(label => {
+            const text = label.textContent.toLowerCase();
+            label.style.display = text.includes(searchTerm) ? '' : 'none';
+          });
+        });
+      }
+
+      // Admin search input handling
+      const adminSearchInput = document.getElementById('admin-search-input');
+      if (adminSearchInput) {
+        adminSearchInput.addEventListener('keyup', function(event) {
+          if (event.key === 'Enter') {
+            applyAdminFilters();
+          }
+        });
+
+        let searchTimeout;
+        adminSearchInput.addEventListener('input', function() {
+          clearTimeout(searchTimeout);
+          searchTimeout = setTimeout(() => {
+            applyAdminFilters();
+          }, 300);
+        });
+      }
+
+      document.addEventListener('change', (event) => {
+        if (event.target && event.target.matches('.filter-checkbox-label input[type="checkbox"]')) {
+          const label = event.target.closest('.filter-checkbox-label');
+          if (label) {
+            label.classList.toggle('is-checked', event.target.checked);
+          }
+        }
+      });
+    }
+
+    function toggleFilterCategory(id) {
+      const body = document.getElementById(id);
+      if (!body) return;
+      body.classList.toggle('is-collapsed');
+      const toggle = body.closest('.filter-category')?.querySelector('.filter-category-toggle');
+      if (toggle) toggle.classList.toggle('is-collapsed');
+    }
   </script>
 </body>
 </html>

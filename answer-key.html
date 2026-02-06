@@ -102,18 +102,77 @@
         Here are all the matches between our real-life personas and their alter egos!
       </p>
 
-      <!-- Filter Options -->
-      <div style="text-align: center; margin-bottom: var(--spacing-xl);">
-        <label for="answer-course-filter" style="display: inline-block; margin-right: var(--spacing-sm); font-weight: 600;" data-lang-key="answer-filter-course">Filter by Course:</label>
-        <select id="answer-course-filter" onchange="filterAnswers()" style="padding: var(--spacing-xs) var(--spacing-md); border-radius: var(--radius-md); border: 2px solid var(--light-blue);">
-          <option value="all" data-lang-key="answer-filter-all">All Courses</option>
-        </select>
-        
-        <label for="answer-section-filter" style="display: inline-block; margin-left: var(--spacing-lg); margin-right: var(--spacing-sm); font-weight: 600;" data-lang-key="answer-filter-section">Section:</label>
-        <select id="answer-section-filter" onchange="filterAnswers()" style="padding: var(--spacing-xs) var(--spacing-md); border-radius: var(--radius-md); border: 2px solid var(--light-blue);">
-          <option value="all" data-lang-key="answer-filter-all-sections">All Sections</option>
-        </select>
-      </div>
+      <!-- Search and Filter Bar -->
+      <section class="search-filter-bar">
+        <div class="search-filter-controls">
+          <div class="search-container">
+            <input type="text" id="search-input" placeholder="Search" data-lang-key-placeholder="search-placeholder" class="search-input">
+            <button class="clear-search-btn" onclick="clearSearch()">×</button>
+          </div>
+          
+          <div class="filter-dropdown-container">
+            <button class="filter-dropdown-btn" id="filter-btn">
+              <span data-lang-key="filter-button">Filter</span>
+              <span class="dropdown-arrow">▼</span>
+            </button>
+            
+            <!-- Filter Panel -->
+            <div class="filter-panel" id="filter-panel" style="display: none;">
+              <div class="filter-panel-search">
+                <input type="text" id="filter-search-input" placeholder="Search Filter Tags" data-lang-key-placeholder="search-filter-tags" class="filter-search-input">
+                <button class="clear-filter-search-btn" onclick="clearFilterSearch()">×</button>
+              </div>
+              
+              <div class="filter-panel-content">
+                <!-- Profile Types -->
+                <div class="filter-category">
+                  <button class="filter-category-toggle" type="button" onclick="toggleFilterCategory('profile-types-options')">
+                    <span class="filter-category-title" data-lang-key="filter-profile-types">Profile Types</span>
+                    <span class="filter-category-arrow">▾</span>
+                  </button>
+                  <div class="filter-options-checkboxes filter-category-body" id="profile-types-options">
+                    <!-- Dynamically populated -->
+                  </div>
+                </div>
+                
+                <!-- Groups -->
+                <div class="filter-category">
+                  <button class="filter-category-toggle" type="button" onclick="toggleFilterCategory('group-checkboxes')">
+                    <span class="filter-category-title" data-lang-key="filter-groups">Groups</span>
+                    <span class="filter-category-arrow">▾</span>
+                  </button>
+                  <div class="filter-options-checkboxes filter-category-body" id="group-checkboxes">
+                    <!-- Dynamically populated -->
+                  </div>
+                </div>
+                
+                <!-- Language -->
+                <div class="filter-category">
+                  <button class="filter-category-toggle" type="button" onclick="toggleFilterCategory('language-checkboxes')">
+                    <span class="filter-category-title" data-lang-key="filter-language">Language</span>
+                    <span class="filter-category-arrow">▾</span>
+                  </button>
+                  <div class="filter-options-checkboxes filter-category-body" id="language-checkboxes">
+                    <!-- Dynamically populated -->
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="results-row">
+          <div class="results-summary" id="results-summary">
+            <strong id="results-count">0</strong> <span data-lang-key="results-profiles">Results Shown</span>
+          </div>
+        </div>
+
+        <div class="active-filters" id="active-filters" style="display: none;">
+          <!-- Active filter tags will be inserted here -->
+        </div>
+
+        <button class="clear-filters-link" type="button" id="clear-filters-btn" onclick="clearAllFilters()">Clear Filters</button>
+      </section>
 
       <!-- Answers Container -->
       <div id="answers-container">
@@ -138,58 +197,361 @@
         alert('Incorrect password');
       }
     }
-    let allStudents = [];
-    let currentFilter = { course: 'all', section: 'all' };
+    let answerPairs = [];
+    let filterOptionsCache = {
+      profileTypes: [
+        { value: 'real-life', label: 'Us In Real Life' },
+        { value: 'alter-ego', label: 'Our Alter Egos' }
+      ],
+      languages: [
+        { value: 'en', label: 'English' },
+        { value: 'es', label: 'Spanish' }
+      ],
+      groups: []
+    };
+    let activeFilters = {
+      profileTypes: [],
+      languages: [],
+      groups: [],
+      search: ''
+    };
+
+    async function loadFilterOptions() {
+      try {
+        const response = await fetch('/api/filter-options');
+        if (response.ok) {
+          const data = await response.json();
+          filterOptionsCache = {
+            profileTypes: data.profileTypes || filterOptionsCache.profileTypes,
+            languages: data.languages || filterOptionsCache.languages,
+            groups: data.groups || []
+          };
+        }
+      } catch (error) {
+        console.warn('Failed to load filter options:', error);
+      }
+      return filterOptionsCache;
+    }
+
+    function getFilterOptions() {
+      return filterOptionsCache;
+    }
 
     async function loadAnswers() {
       try {
-        const response = await fetch('/_data/students.json');
+        await loadFilterOptions();
+        const response = await fetch('/api/accepted-profiles');
         const data = await response.json();
-        allStudents = data.students.filter(s => s.public_display_consent);
-        
-        populateFilters();
+        answerPairs = buildAnswerPairs(data);
+        initializeFilters();
         renderAnswers();
       } catch (error) {
         console.error('Error loading answers:', error);
       }
     }
 
-    function populateFilters() {
-      const courses = [...new Set(allStudents.map(s => s.course))];
-      const sections = [...new Set(allStudents.map(s => s.section))].sort().reverse();
-      
-      const courseSelect = document.getElementById('answer-course-filter');
-      courses.forEach(course => {
-        const option = document.createElement('option');
-        option.value = course;
-        option.textContent = course;
-        courseSelect.appendChild(option);
-      });
+    function buildAnswerPairs(profiles) {
+      const pairs = [];
+      (profiles || []).forEach(profile => {
+        const preferred = profile.profiles?.[currentLang] || profile.profiles?.en || profile.profiles?.es;
+        if (!preferred) return;
+        const hasReal = Boolean(preferred.full_name || preferred.preferred_name);
+        const hasAlter = Boolean(preferred.alter_ego_name);
+        if (!hasReal || !hasAlter) return;
 
-      const sectionSelect = document.getElementById('answer-section-filter');
-      sections.forEach(section => {
-        const option = document.createElement('option');
-        option.value = section;
-        option.textContent = section;
-        sectionSelect.appendChild(option);
+        pairs.push({
+          id: profile._id,
+          language: profile.profiles?.[currentLang] ? currentLang : (profile.profiles?.en ? 'en' : 'es'),
+          course: preferred.course || '',
+          section: preferred.section || '',
+          team: preferred.team || '',
+          real: {
+            name: preferred.preferred_name || preferred.full_name || '',
+            photo: preferred.photo_url || '',
+            photoAlt: preferred.photo_alt || '',
+            role: preferred.role || '',
+            organization: preferred.organization || '',
+            about: preferred.about || '',
+            pronunciation: preferred.pronunciation_url || ''
+          },
+          alter: {
+            name: preferred.alter_ego_name || '',
+            photo: preferred.alter_ego_photo_url || '',
+            photoAlt: preferred.alter_ego_alt || '',
+            role: preferred.alter_ego_job || '',
+            organization: preferred.alter_ego_org || '',
+            about: preferred.alter_ego_about || '',
+            hobbies: preferred.hobbies || ''
+          }
+        });
+      });
+      return pairs;
+    }
+
+    // Initialize filter options based on available data
+    function initializeFilters() {
+      const { profileTypes, languages, groups } = getFilterOptions();
+
+      const profileTypeContainer = document.getElementById('profile-types-options');
+      if (profileTypeContainer) {
+        profileTypeContainer.innerHTML = '';
+        profileTypes.forEach(type => {
+          const value = typeof type === 'string' ? type : type.value;
+          const labelText = typeof type === 'string' ? getProfileTypeLabel(type) : (type.label || getProfileTypeLabel(type.value));
+          const label = document.createElement('label');
+          label.className = 'filter-checkbox-label';
+          label.innerHTML = `
+            <input type="checkbox" value="${value}" onchange="applyFilters()">
+            <span>${labelText}</span>
+          `;
+          profileTypeContainer.appendChild(label);
+        });
+      }
+
+      const groupCheckboxes = document.getElementById('group-checkboxes');
+      if (groupCheckboxes) {
+        groupCheckboxes.innerHTML = '';
+        groups.forEach(group => {
+          const label = document.createElement('label');
+          label.className = 'filter-checkbox-label';
+          label.innerHTML = `
+            <input type="checkbox" value="${group}" onchange="applyFilters()">
+            <span>${group}</span>
+          `;
+          groupCheckboxes.appendChild(label);
+        });
+      }
+
+      const languageCheckboxes = document.getElementById('language-checkboxes');
+      if (languageCheckboxes) {
+        languageCheckboxes.innerHTML = '';
+        languages.forEach(lang => {
+          const value = typeof lang === 'string' ? lang : lang.value;
+          const labelText = typeof lang === 'string' ? getLanguageLabel(lang) : (lang.label || getLanguageLabel(lang.value));
+          const label = document.createElement('label');
+          label.className = 'filter-checkbox-label';
+          label.innerHTML = `
+            <input type="checkbox" value="${value}" onchange="applyFilters()">
+            <span>${labelText}</span>
+          `;
+          languageCheckboxes.appendChild(label);
+        });
+      }
+
+      updateResultsSummary();
+    }
+
+    // Apply all filters
+    function applyFilters() {
+      const profileTypeCheckboxes = document.querySelectorAll('#profile-types-options input[type="checkbox"]');
+      activeFilters.profileTypes = Array.from(profileTypeCheckboxes).filter(cb => cb.checked).map(cb => cb.value);
+
+      const languageCheckboxes = document.querySelectorAll('#language-checkboxes input');
+      activeFilters.languages = Array.from(languageCheckboxes).filter(cb => cb.checked).map(cb => cb.value);
+
+      const groupCheckboxes = document.querySelectorAll('#group-checkboxes input');
+      activeFilters.groups = Array.from(groupCheckboxes).filter(cb => cb.checked).map(cb => cb.value);
+
+      renderAnswers();
+      updateActiveFilterTags();
+    }
+
+    // Perform search
+    function performSearch() {
+      const searchInput = document.getElementById('search-input');
+      if (!searchInput) return;
+      activeFilters.search = searchInput.value.toLowerCase().trim();
+
+      renderAnswers();
+      updateActiveFilterTags();
+    }
+
+    // Clear search
+    function clearSearch() {
+      const searchInput = document.getElementById('search-input');
+      if (searchInput) searchInput.value = '';
+      activeFilters.search = '';
+      renderAnswers();
+      updateActiveFilterTags();
+    }
+
+    // Clear filter search
+    function clearFilterSearch() {
+      const filterSearch = document.getElementById('filter-search-input');
+      if (filterSearch) filterSearch.value = '';
+      filterFilterTags('');
+    }
+
+    // Filter the filter tags based on search
+    function filterFilterTags(searchTerm) {
+      const term = searchTerm.toLowerCase();
+      document.querySelectorAll('#filter-panel .filter-checkbox-label').forEach(label => {
+        const text = label.textContent.toLowerCase();
+        label.style.display = text.includes(term) ? 'flex' : 'none';
       });
     }
 
-    function filterAnswers() {
-      currentFilter.course = document.getElementById('answer-course-filter').value;
-      currentFilter.section = document.getElementById('answer-section-filter').value;
+    // Toggle filter panel
+    function toggleFilterPanel() {
+      const panel = document.getElementById('filter-panel');
+      if (!panel) return;
+      const isVisible = panel.style.display === 'block';
+      panel.style.display = isVisible ? 'none' : 'block';
+    }
+
+    // Update active filter tags display
+    function updateActiveFilterTags() {
+      const container = document.getElementById('active-filters');
+      if (!container) return;
+
+      container.innerHTML = '';
+      let hasActiveFilters = false;
+
+      activeFilters.profileTypes.forEach(type => {
+        hasActiveFilters = true;
+        const label = getProfileTypeLabel(type);
+        container.appendChild(createFilterTag(label, 'profileType', type));
+      });
+
+      activeFilters.languages.forEach(lang => {
+        hasActiveFilters = true;
+        const label = getLanguageLabel(lang);
+        container.appendChild(createFilterTag(label, 'language', lang));
+      });
+
+      activeFilters.groups.forEach(group => {
+        hasActiveFilters = true;
+        container.appendChild(createFilterTag(group, 'group', group));
+      });
+
+      container.style.display = hasActiveFilters ? 'flex' : 'none';
+    }
+
+    function toggleFilterCategory(id) {
+      const body = document.getElementById(id);
+      if (!body) return;
+      body.classList.toggle('is-collapsed');
+      const toggle = body.closest('.filter-category')?.querySelector('.filter-category-toggle');
+      if (toggle) toggle.classList.toggle('is-collapsed');
+    }
+
+    function getProfileTypeLabel(value) {
+      const { profileTypes } = getFilterOptions();
+      const match = profileTypes.find(t => (t.value || t) === value);
+      if (match && typeof match === 'object') return match.label || match.value;
+      if (value === 'real-life') return 'Us In Real Life';
+      if (value === 'alter-ego') return 'Our Alter Egos';
+      return value;
+    }
+
+    function getLanguageLabel(value) {
+      const { languages } = getFilterOptions();
+      const match = languages.find(t => (t.value || t) === value);
+      if (match && typeof match === 'object') return match.label || match.value;
+      if (value === 'en') return 'English';
+      if (value === 'es') return 'Spanish';
+      return value;
+    }
+
+    // Create filter tag element
+    function createFilterTag(label, type, value) {
+      const tag = document.createElement('div');
+      tag.className = 'active-filter-tag';
+      tag.innerHTML = `
+        <span>${label}</span>
+        <button onclick="removeFilter('${type}', '${value}')">×</button>
+      `;
+      return tag;
+    }
+
+    // Remove individual filter
+    function removeFilter(type, value) {
+      if (type === 'profileType') {
+        activeFilters.profileTypes = activeFilters.profileTypes.filter(t => t !== value);
+        const checkbox = document.querySelector(`.filter-options-checkboxes input[value="${value}"]`);
+        if (checkbox) checkbox.checked = false;
+      } else if (type === 'language') {
+        activeFilters.languages = activeFilters.languages.filter(l => l !== value);
+        const checkbox = document.querySelector(`#language-checkboxes input[value="${value}"]`);
+        if (checkbox) checkbox.checked = false;
+      } else if (type === 'group') {
+        activeFilters.groups = activeFilters.groups.filter(g => g !== value);
+        const checkbox = document.querySelector(`#group-checkboxes input[value="${value}"]`);
+        if (checkbox) checkbox.checked = false;
+      }
+
       renderAnswers();
+      updateActiveFilterTags();
+    }
+
+    // Clear all filters
+    function clearAllFilters() {
+      activeFilters = {
+        profileTypes: [],
+        languages: [],
+        groups: [],
+        search: ''
+      };
+
+      document.querySelectorAll('.filter-options-checkboxes input[type="checkbox"]').forEach(cb => {
+        cb.checked = false;
+        const label = cb.closest('.filter-checkbox-label');
+        if (label) label.classList.remove('is-checked');
+      });
+
+      const searchInput = document.getElementById('search-input');
+      if (searchInput) searchInput.value = '';
+      const clearBtn = document.querySelector('.clear-search-btn');
+      if (clearBtn) clearBtn.style.display = 'none';
+
+      renderAnswers();
+      updateActiveFilterTags();
+    }
+
+    // Filter answers based on active filters
+    function filterAnswers() {
+      return answerPairs.filter(pair => {
+        if (activeFilters.profileTypes.length > 0) {
+          const wantsReal = activeFilters.profileTypes.includes('real-life');
+          const wantsAlter = activeFilters.profileTypes.includes('alter-ego');
+          if (!wantsReal && !wantsAlter) return false;
+        }
+
+        if (activeFilters.languages.length > 0 && !activeFilters.languages.includes(pair.language)) {
+          return false;
+        }
+
+        if (activeFilters.groups.length > 0) {
+          const hasMatchingGroup = activeFilters.groups.some(group =>
+            pair.section === group || pair.team === group
+          );
+          if (!hasMatchingGroup) return false;
+        }
+
+        if (activeFilters.search) {
+          const term = activeFilters.search;
+          const fields = [
+            pair.real.name,
+            pair.alter.name,
+            pair.real.organization,
+            pair.alter.organization
+          ]
+            .filter(Boolean)
+            .map(text => text.toLowerCase());
+          const hasMatch = fields.some(text => text.includes(term));
+          if (!hasMatch) return false;
+        }
+
+        return true;
+      });
     }
 
     function renderAnswers() {
-      let filtered = allStudents.filter(s => {
-        if (currentFilter.course !== 'all' && s.course !== currentFilter.course) return false;
-        if (currentFilter.section !== 'all' && s.section !== currentFilter.section) return false;
-        return true;
-      });
-
+      const filtered = filterAnswers();
       const container = document.getElementById('answers-container');
-      
+
+      updateResultsSummary(filtered.length);
+
       if (filtered.length === 0) {
         container.innerHTML = '<div class="empty-state"><p>No matches found for the selected filters.</p></div>';
         return;
@@ -198,36 +560,43 @@
       container.innerHTML = filtered.map(student => `
         <div class="answer-pair">
           <div class="answer-column">
-            <img src="${student.photo}" alt="${student.photo_alt}">
-            <h3>${student.preferred_name}</h3>
-            <p class="role">${student.role} ${student.organization ? `at ${student.organization}` : ''}</p>
+            <img src="${student.real.photo || 'assets/images/placeholder-avatar.svg'}" alt="${student.real.photoAlt || ''}" onerror="this.src='assets/images/placeholder-avatar.svg'">
+            <h3>${student.real.name}</h3>
+            <p class="role">${student.real.role} ${student.real.organization ? `at ${student.real.organization}` : ''}</p>
             <div class="card-meta" style="justify-content: center; margin-bottom: var(--spacing-sm);">
-              <span class="meta-tag course">${student.course}</span>
-              <span class="meta-tag section">${student.section}</span>
+              ${student.course ? `<span class="meta-tag course">${student.course}</span>` : ''}
+              ${student.section ? `<span class="meta-tag section">${student.section}</span>` : ''}
             </div>
-            <div class="bio">${student.about}</div>
-            ${student.pronunciation_file ? `
+            <div class="bio">${student.real.about || ''}</div>
+            ${student.real.pronunciation ? `
               <div class="audio-player" style="margin-top: var(--spacing-md);">
                 <audio controls style="width: 100%;">
-                  <source src="${student.pronunciation_file}" type="audio/mpeg">
+                  <source src="${student.real.pronunciation}" type="audio/mpeg">
                 </audio>
               </div>
             ` : ''}
           </div>
           
           <div class="answer-column">
-            <img src="${student.alter_ego.photo}" alt="${student.alter_ego.photo_alt}">
-            <h3>${student.alter_ego.name}</h3>
-            <p class="role">${student.alter_ego.job_title} ${student.alter_ego.organization ? `at ${student.alter_ego.organization}` : ''}</p>
-            <div class="bio">${student.alter_ego.about}</div>
-            ${student.alter_ego.hobbies ? `
+            <img src="${student.alter.photo || 'assets/images/placeholder-avatar.svg'}" alt="${student.alter.photoAlt || ''}" onerror="this.src='assets/images/placeholder-avatar.svg'">
+            <h3>${student.alter.name}</h3>
+            <p class="role">${student.alter.role} ${student.alter.organization ? `at ${student.alter.organization}` : ''}</p>
+            <div class="bio">${student.alter.about || ''}</div>
+            ${student.alter.hobbies ? `
               <p style="margin-top: var(--spacing-sm); font-size: 0.9rem; color: #777;">
-                <strong>Hobbies:</strong> ${student.alter_ego.hobbies}
+                <strong>Hobbies:</strong> ${student.alter.hobbies}
               </p>
             ` : ''}
           </div>
         </div>
       `).join('');
+    }
+
+    function updateResultsSummary(count) {
+      const resultsCount = document.getElementById('results-count');
+      if (resultsCount) {
+        resultsCount.textContent = count !== undefined ? count : answerPairs.length;
+      }
     }
 
     // Language switching
@@ -251,22 +620,62 @@
         }
       });
       
-      // Update dropdown default options
-      const courseFilter = document.getElementById('answer-course-filter');
-      const sectionFilter = document.getElementById('answer-section-filter');
-      if (courseFilter && courseFilter.options[0]) {
-        courseFilter.options[0].textContent = pageTranslations[lang]['answer-filter-all'] || 'All Courses';
+      // Update placeholder
+      const searchInput = document.getElementById('search-input');
+      if (searchInput && pageTranslations[lang]) {
+        searchInput.placeholder = pageTranslations[lang]['search-placeholder'] || 'Search by name...';
       }
-      if (sectionFilter && sectionFilter.options[0]) {
-        sectionFilter.options[0].textContent = pageTranslations[lang]['answer-filter-all-sections'] || 'All Sections';
-      }
-      
+
       // Update HTML lang attribute
       document.documentElement.lang = lang;
+
+      // Reload answers to use preferred language data
+      loadAnswers();
     }
 
     document.addEventListener('DOMContentLoaded', () => {
       loadAnswers();
+
+      const filterBtn = document.getElementById('filter-btn');
+      if (filterBtn) {
+        filterBtn.addEventListener('click', function(event) {
+          event.stopPropagation();
+          toggleFilterPanel();
+        });
+      }
+
+      const searchInput = document.getElementById('search-input');
+      if (searchInput) {
+        searchInput.addEventListener('keyup', function(event) {
+          if (event.key === 'Enter') {
+            performSearch();
+          }
+        });
+
+        let searchTimeout;
+        searchInput.addEventListener('input', function() {
+          clearTimeout(searchTimeout);
+          searchTimeout = setTimeout(() => {
+            performSearch();
+          }, 300);
+        });
+      }
+
+      const filterSearchInput = document.getElementById('filter-search-input');
+      if (filterSearchInput) {
+        filterSearchInput.addEventListener('input', function() {
+          filterFilterTags(this.value);
+        });
+      }
+
+      document.addEventListener('change', (event) => {
+        if (event.target && event.target.matches('.filter-checkbox-label input[type="checkbox"]')) {
+          const label = event.target.closest('.filter-checkbox-label');
+          if (label) {
+            label.classList.toggle('is-checked', event.target.checked);
+          }
+        }
+      });
       
       // Apply saved language
       if (currentLang !== 'en') {
@@ -286,20 +695,23 @@
           }
         });
         
-        // Update dropdown default options after a short delay to ensure they're loaded
-        setTimeout(() => {
-          const courseFilter = document.getElementById('answer-course-filter');
-          const sectionFilter = document.getElementById('answer-section-filter');
-          if (courseFilter && courseFilter.options[0]) {
-            courseFilter.options[0].textContent = pageTranslations[currentLang]['answer-filter-all'] || 'All Courses';
-          }
-          if (sectionFilter && sectionFilter.options[0]) {
-            sectionFilter.options[0].textContent = pageTranslations[currentLang]['answer-filter-all-sections'] || 'All Sections';
-          }
-        }, 100);
-        
+        // Update placeholder
+        const searchInput = document.getElementById('search-input');
+        if (searchInput && pageTranslations[currentLang]) {
+          searchInput.placeholder = pageTranslations[currentLang]['search-placeholder'] || 'Search by name...';
+        }
+
         // Update HTML lang attribute
         document.documentElement.lang = currentLang;
+      }
+    });
+
+    // Close filter panel when clicking outside
+    document.addEventListener('click', function(event) {
+      const panel = document.getElementById('filter-panel');
+      const btn = document.querySelector('.filter-dropdown-btn');
+      if (panel && btn && !panel.contains(event.target) && !btn.contains(event.target)) {
+        panel.style.display = 'none';
       }
     });
   </script>
